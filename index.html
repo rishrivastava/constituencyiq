@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="description" content="ConstituencyIQ — AI-powered political intelligence platform for Indian elections. Real-time voter analytics, popularity scoring, and campaign strategy."/>
+<meta name="theme-color" content="#0a0f1e"/>
+<meta property="og:title" content="ConstituencyIQ — Political Intelligence Platform"/>
+<meta property="og:description" content="AI that knows everything about your constituency. Popularity score, voter analytics, micro-action recommendations."/>
+<title>ConstituencyIQ — Political Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<style>
+/* ── Reset & Base ────────────────────────────────────────────────────── */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --ink:#0a0f1e;--ink2:#111827;--ink3:#1e2d45;
+  --gold:#f59e0b;--gold2:#fbbf24;--golddim:#92400e;
+  --blue:#3b82f6;--green:#22c55e;--red:#ef4444;--purple:#8b5cf6;
+  --text:#e2e8f0;--muted:#64748b;--dim:#334155;
+  --wa:#128C7E;--r:12px;
+}
+html,body{height:100%;overflow:hidden;background:var(--ink)}
+body{font-family:'DM Sans',sans-serif;color:var(--text);display:flex;flex-direction:column}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--ink3);border-radius:2px}
+
+/* ── Animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scoreCount{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.fadeUp{animation:fadeUp .5s ease both}
+.fadeUp1{animation:fadeUp .5s .1s ease both}
+.fadeUp2{animation:fadeUp .5s .2s ease both}
+.fadeUp3{animation:fadeUp .5s .3s ease both}
+
+/* ── App Shell ── */
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{
+  width:200px;min-width:180px;background:var(--ink2);
+  border-right:1px solid var(--ink3);display:flex;flex-direction:column;
+  flex-shrink:0;transition:width .3s;
+}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ── Sidebar ── */
+.sb-head{
+  padding:18px 16px 14px;
+  background:linear-gradient(135deg,#0f172a,#1a1040);
+  border-bottom:1px solid var(--ink3);
+}
+.sb-logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--gold);letter-spacing:-.3px}
+.sb-sub{font-size:9px;color:var(--muted);margin-top:2px;letter-spacing:.5px;text-transform:uppercase}
+.sb-nav{padding:8px 6px;flex:1;overflow-y:auto}
+.sb-section{font-size:8px;font-weight:700;letter-spacing:1.5px;color:var(--muted);padding:10px 8px 4px;text-transform:uppercase}
+.nav-btn{
+  display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;
+  cursor:pointer;margin-bottom:2px;transition:all .15s;font-size:12px;font-weight:500;
+  color:var(--muted);border:none;background:transparent;width:100%;text-align:left;
+  font-family:'DM Sans',sans-serif;
+}
+.nav-btn:hover{background:#1e2d4530;color:var(--text)}
+.nav-btn.active{
+  background:linear-gradient(135deg,#f59e0b18,#f59e0b08);
+  color:var(--gold);border-left:2px solid var(--gold);border-radius:0 8px 8px 0;
+}
+.nav-ic{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.sb-foot{padding:10px 12px;border-top:1px solid var(--ink3)}
+.data-pill{
+  background:#22c55e14;color:var(--green);font-size:10px;font-weight:600;
+  padding:5px 10px;border-radius:14px;text-align:center;
+}
+
+/* ── Topbar ── */
+.topbar{
+  background:var(--ink2);border-bottom:1px solid var(--ink3);
+  padding:11px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.tb-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text)}
+.tb-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.badge{
+  font-size:9px;font-weight:700;padding:3px 8px;border-radius:12px;
+  letter-spacing:.8px;text-transform:uppercase;
+}
+.badge-gold{background:#92400e;color:var(--gold)}
+.badge-green{background:#22c55e14;color:var(--green)}
+.badge-blue{background:#3b82f614;color:var(--blue)}
+
+/* ── Panels ── */
+.panel{flex:1;overflow-y:auto;padding:20px;display:none}
+.panel.active{display:block}
+.chat-wrap{flex:1;display:none;flex-direction:column;overflow:hidden}
+.chat-wrap.active{display:flex}
+
+/* ── Cards ── */
+.card{background:var(--ink2);border:1px solid var(--ink3);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--gold);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card-sub{font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.6}
+
+/* ── Form elements ── */
+input:not(.chat-in),select,textarea{
+  background:#0d1117;border:1px solid var(--ink3);border-radius:8px;
+  padding:8px 12px;color:var(--text);font-size:12px;outline:none;
+  font-family:'DM Sans',sans-serif;width:100%;transition:border .2s;
+}
+input:not(.chat-in):focus,select:focus,textarea:focus{border-color:var(--gold)44}
+select option{background:var(--ink2)}
+.btn{
+  border:none;border-radius:8px;padding:8px 16px;font-weight:600;font-size:12px;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn:hover{filter:brightness(1.1)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:active{transform:scale(.97)}
+.btn-gold{background:var(--gold);color:#000}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-green{background:var(--green);color:#000}
+.btn-red{background:var(--red);color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-dim{background:var(--ink3);color:var(--muted)}
+.lbl{font-size:10px;color:var(--muted);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.ai-box{background:#0d1117;border:1px solid #3b82f630;border-radius:10px;padding:14px;margin-top:10px;font-size:12px;line-height:1.8;color:var(--text);white-space:pre-wrap;animation:fadeUp .4s ease}
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin:2px}
+.t-blue{background:#3b82f618;color:var(--blue)}
+.t-green{background:#22c55e18;color:var(--green)}
+.t-gold{background:#f59e0b18;color:var(--gold)}
+.t-red{background:#ef444418;color:var(--red)}
+.hidden{display:none!important}
+.ok{color:var(--green);font-size:11px;margin-top:6px}
+.err{color:var(--red);font-size:11px;margin-top:6px}
+
+/* ── Score Ring ── */
+.score-ring-wrap{display:flex;align-items:center;justify-content:center;padding:10px}
+.score-ring{position:relative;width:130px;height:130px}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring .track{fill:none;stroke:#1e2d45;stroke-width:12}
+.score-ring .fill{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1)}
+.score-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--gold);line-height:1}
+.score-lbl{font-size:9px;color:var(--muted);margin-top:2px;letter-spacing:.5px}
+
+/* ── Stat cards ── */
+.stat-g{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat{background:var(--ink2);border:1px solid var(--ink3);border-radius:10px;padding:14px;text-align:center}
+.stat-v{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--gold)}
+.stat-l{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* ── Progress bars ── */
+.prog-wrap{height:6px;border-radius:3px;background:var(--ink3);overflow:hidden;margin-top:3px}
+.prog-bar{height:6px;border-radius:3px;transition:width .8s ease}
+
+/* ── Table ── */
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{padding:7px 10px;background:#0d1117;color:var(--gold);text-align:left;border-bottom:1px solid var(--ink3);font-size:10px;text-transform:uppercase;letter-spacing:.4px;font-family:'Syne',sans-serif}
+td{padding:6px 10px;border-bottom:1px solid #1e2d4515;color:var(--muted)}
+tr:hover td{background:#1e2d4515}
+
+/* ── Chat ── */
+.chat-head{
+  padding:12px 18px;background:#0d4d42;
+  border-bottom:1px solid #0f6b5c;
+  display:flex;align-items:center;gap:10px;flex-shrink:0;
+}
+.chat-av{width:34px;height:34px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.chat-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#fff}
+.chat-online{font-size:10px;color:#4ade8088}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px 16px;background:#0d1117}
+.msg-row{display:flex;margin-bottom:10px;align-items:flex-end;gap:6px}
+.msg-row.u{justify-content:flex-end}
+.msg-row.b{justify-content:flex-start}
+.msg-av{width:24px;height:24px;border-radius:50%;background:#128C7E;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.bubble{max-width:75%;padding:9px 13px;border-radius:12px;font-size:12.5px;line-height:1.65;font-family:'DM Sans',sans-serif;animation:fadeUp .3s ease}
+.bubble.u{background:#005C4B;color:#e9edef;border-radius:12px 12px 4px 12px}
+.bubble.b{background:#1f2c34;color:#e9edef;border-radius:12px 12px 12px 4px;border:1px solid #2a3942}
+.btime{font-size:9px;color:#ffffff40;margin-top:3px;text-align:right}
+.bubble.b .btime{text-align:left}
+.typing{display:flex;gap:3px;padding:8px 12px;background:#1f2c34;border-radius:12px 12px 12px 4px;width:fit-content;border:1px solid #2a3942}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:pulse .9s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+.chips{padding:8px 14px;background:#1a2530;display:flex;gap:5px;overflow-x:auto;flex-shrink:0;border-top:1px solid #2a3942}
+.chip{background:#2a3942;color:#8696a0;font-size:10px;font-weight:600;padding:5px 10px;border-radius:12px;cursor:pointer;white-space:nowrap;border:1px solid #3a4952;transition:all .15s;flex-shrink:0}
+.chip:hover{background:#00a88420;color:#00a884;border-color:#00a88440}
+.chat-in-wrap{padding:10px 12px;background:#1f2c34;border-top:1px solid #2a3942;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.chat-in{flex:1;background:#2a3942;border:none;border-radius:20px;padding:9px 14px;color:#e9edef;font-size:13px;outline:none;font-family:'DM Sans',sans-serif}
+.chat-in::placeholder{color:#8696a0}
+.send-btn{width:36px;height:36px;border-radius:50%;background:#00a884;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .2s;flex-shrink:0}
+.send-btn:hover{background:#06cf9c}
+
+/* ── Source cards ── */
+.src-card{border:2px solid var(--ink3);border-radius:10px;padding:14px;cursor:pointer;transition:all .2s;margin-bottom:8px}
+.src-card:hover{border-color:var(--gold)44;background:#f59e0b06}
+.src-card.connected{border-color:var(--green);background:#22c55e08}
+.src-logo{font-size:24px;margin-bottom:6px}
+.src-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px}
+.src-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.connected-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;margin-right:4px;animation:pulse 2s infinite}
+
+/* ── Action cards ── */
+.action-card{background:#0d1117;border:1px solid var(--ink3);border-radius:10px;padding:14px;margin-bottom:10px;transition:border .2s}
+.action-card:hover{border-color:var(--gold)44}
+.action-num{width:24px;height:24px;border-radius:50%;background:var(--gold);color:#000;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Syne',sans-serif}
+.action-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px}
+.action-desc{font-size:11px;color:var(--muted);line-height:1.5}
+.impact-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-top:6px;display:inline-block}
+.impact-h{background:#22c55e18;color:var(--green)}
+.impact-m{background:#f59e0b18;color:var(--gold)}
+
+/* ── Sync log ── */
+.sync-log{background:#0d1117;border:1px solid var(--ink3);border-radius:8px;padding:10px;font-size:10px;font-family:monospace;max-height:100px;overflow-y:auto;margin-top:8px;color:var(--green)}
+
+/* ── Toggle ── */
+.toggle{width:34px;height:18px;background:var(--ink3);border-radius:9px;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';width:14px;height:14px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .2s}
+.toggle.on::after{left:18px}
+
+/* ── Mobile ── */
+@media(max-width:640px){
+  .sidebar{width:52px;min-width:52px}
+  .sb-logo,.sb-sub,.nav-lbl,.sb-section,.sb-foot{display:none}
+  .nav-btn{justify-content:center;padding:10px 6px}
+  .panel{padding:14px}
+  .g3{grid-template-columns:1fr 1fr}
+  .stat-g{grid-template-columns:1fr 1fr}
+  .bubble{max-width:85%}
+  .topbar{padding:10px 14px}
+  .tb-title{font-size:13px}
+}
+@media(max-width:400px){
+  .g2{grid-template-columns:1fr}
+  .g3{grid-template-columns:1fr}
+  .stat-g{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════════════ -->
+<div class="sidebar">
+  <div class="sb-head">
+    <div class="sb-logo">⚡ CIQ</div>
+    <div class="sb-sub">Political Intel</div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-section">Intelligence</div>
+    <button class="nav-btn active" onclick="go('chat')"><span class="nav-ic">💬</span><span class="nav-lbl">AI Chat</span></button>
+    <button class="nav-btn" onclick="go('score')"><span class="nav-ic">🎯</span><span class="nav-lbl">Popularity Score</span></button>
+    <button class="nav-btn" onclick="go('actions')"><span class="nav-ic">⚡</span><span class="nav-lbl">Action Plan</span></button>
+    <button class="nav-btn" onclick="go('visualise')"><span class="nav-ic">📊</span><span class="nav-lbl">Visualise</span></button>
+    <div class="sb-section">Data</div>
+    <button class="nav-btn" onclick="go('sources')"><span class="nav-ic">🔌</span><span class="nav-lbl">Connect Data</span></button>
+    <button class="nav-btn" onclick="go('kobo')"><span class="nav-ic">📋</span><span class="nav-lbl">KoboToolbox</span></button>
+    <button class="nav-btn" onclick="go('upload')"><span class="nav-ic">📁</span><span class="nav-lbl">Upload File</span></button>
+    <div class="sb-section">Strategy</div>
+    <button class="nav-btn" onclick="go('predict')"><span class="nav-ic">🗳️</span><span class="nav-lbl">Predict & Win</span></button>
+    <button class="nav-btn" onclick="go('ivrs')"><span class="nav-ic">📞</span><span class="nav-lbl">IVRS Calls</span></button>
+  </div>
+  <div class="sb-foot">
+    <div class="data-pill" id="data-pill">No data</div>
+  </div>
+</div>
+
+<!-- ══ MAIN ══════════════════════════════════════════════════════════════ -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="tb-title" id="tb-title">💬 AI Chat</div>
+      <div class="tb-sub" id="tb-sub">Ask anything about your constituency</div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+      <span class="badge badge-gold" id="src-badge" style="display:none"></span>
+      <span class="badge badge-gold">Beta</span>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-wrap active" id="panel-chat">
+    <div class="chat-head">
+      <div class="chat-av">🤖</div>
+      <div>
+        <div class="chat-name">ConstituencyIQ Assistant</div>
+        <div class="chat-online" id="chat-status">Load data to begin • Beta</div>
+      </div>
+      <button class="btn btn-dim" style="margin-left:auto;padding:5px 10px;font-size:10px" onclick="clearChat()">Clear</button>
+    </div>
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg-row b">
+        <div class="msg-av">⚡</div>
+        <div><div class="bubble b">
+          Namaste! 🙏 Main hoon <b>ConstituencyIQ</b> — aapka political intelligence assistant.<br><br>
+          Mujhe apna data do (KoboToolbox ya Excel), phir poochho kuch bhi:<br>
+          • "Hamare kitne OBC voters hain?"<br>
+          • "Kaun sa ward sabse weak hai?"<br>
+          • "Main kaise apni popularity badha sakta hoon?"<br><br>
+          Ya try karo <b>Demo Data</b> load karna — left sidebar mein "Connect Data" dabao. 👈
+          <div class="btime">Now</div>
+        </div></div>
+      </div>
+    </div>
+    <div class="chips">
+      <div class="chip" onclick="sc(this)">📊 Summarise my data</div>
+      <div class="chip" onclick="sc(this)">🏘️ Weakest ward?</div>
+      <div class="chip" onclick="sc(this)">👥 Top voter segments</div>
+      <div class="chip" onclick="sc(this)">⚠️ Who might not vote?</div>
+      <div class="chip" onclick="sc(this)">🎯 What should I do this week?</div>
+      <div class="chip" onclick="sc(this)">🗳️ Will I win?</div>
+    </div>
+    <div class="chat-in-wrap">
+      <input class="chat-in" id="chat-in" placeholder="Apna sawaal poochho..."
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"/>
+      <button class="send-btn" onclick="send()">➤</button>
+    </div>
+  </div>
+
+  <!-- SCORE -->
+  <div class="panel" id="panel-score">
+    <div class="card fadeUp" style="text-align:center">
+      <div class="card-title" style="justify-content:center">🎯 Popularity Score</div>
+      <div class="score-ring-wrap">
+        <div class="score-ring">
+          <svg viewBox="0 0 130 130" width="130" height="130">
+            <circle class="track" cx="65" cy="65" r="54"/>
+            <circle class="fill" id="score-arc" cx="65" cy="65" r="54"
+              stroke="#f59e0b" stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+          </svg>
+          <div class="score-num">
+            <div class="score-val" id="score-num">--</div>
+            <div class="score-lbl">/ 100</div>
+          </div>
+        </div>
+      </div>
+      <div id="score-label" style="font-size:12px;color:var(--muted);margin-top:4px">Load data to calculate score</div>
+    </div>
+
+    <div class="card fadeUp1" id="score-breakdown" style="display:none">
+      <div class="card-title">📊 Score Breakdown</div>
+      <div id="score-factors"></div>
+    </div>
+
+    <div class="card fadeUp2">
+      <div class="card-title">🧠 AI Score Analysis</div>
+      <button class="btn btn-gold" onclick="getScoreAnalysis()" id="score-ai-btn">Generate Analysis</button>
+      <div id="score-ai-result" class="hidden ai-box"></div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="panel" id="panel-actions">
+    <div class="card fadeUp">
+      <div class="card-title">⚡ Top 5 Actions to Increase Votes</div>
+      <div class="card-sub">AI-generated micro-actions ranked by vote impact. Hyper-local, community-specific.</div>
+      <button class="btn btn-gold" onclick="getActions()" id="actions-btn">🧠 Generate Action Plan</button>
+      <div id="actions-list" style="margin-top:12px"></div>
+    </div>
+  </div>
+
+  <!-- VISUALISE -->
+  <div class="panel" id="panel-visualise">
+    <div class="stat-g" id="stat-cards">
+      <div class="stat"><div class="stat-v">--</div><div class="stat-l">Records</div></div>
+      <div class="stat"><div class="stat-v">--</div><div class="stat-l">Fields</div></div>
+      <div class="stat"><div class="stat-v">--</div><div class="stat-l">Wards</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Chart Explorer</div>
+      <div class="row" style="margin-bottom:12px;gap:8px">
+        <div style="flex:1"><div class="lbl">Field</div><select id="chart-field" onchange="renderChart()"></select></div>
+        <div style="width:110px"><div class="lbl">Type</div>
+          <select id="chart-type" onchange="renderChart()">
+            <option value="bar">Bar</option><option value="pie">Pie</option><option value="doughnut">Doughnut</option>
+          </select>
+        </div>
+      </div>
+      <canvas id="chart" style="max-height:240px"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title" id="bd-title">Breakdown</div>
+      <div id="bd-list"></div>
+    </div>
+  </div>
+
+  <!-- SOURCES -->
+  <div class="panel" id="panel-sources">
+    <div class="card fadeUp">
+      <div class="card-title">🔌 Connect Your Data Source</div>
+      <div class="card-sub">Pull live survey data directly into ConstituencyIQ. All AI features activate automatically once connected.</div>
+      <div class="src-card" id="sc-kobo" onclick="go('kobo')">
+        <div class="src-logo">📋</div>
+        <div class="src-name" style="color:#7aadff">KoboToolbox</div>
+        <div class="src-desc">Free & open-source. Best for field surveys. Works offline. Used by UN & governments.</div>
+        <div style="margin-top:8px"><span class="tag t-blue">Free</span><span class="tag t-blue">Offline</span><span class="tag t-blue">Open Source</span></div>
+      </div>
+      <div class="src-card" onclick="go('upload')">
+        <div class="src-logo">📁</div>
+        <div class="src-name">Excel / CSV Upload</div>
+        <div class="src-desc">Upload any existing spreadsheet. Works with all formats.</div>
+        <div style="margin-top:8px"><span class="tag t-blue">.xlsx</span><span class="tag t-blue">.csv</span></div>
+      </div>
+      <div class="src-card" onclick="loadDemo()">
+        <div class="src-logo">🎭</div>
+        <div class="src-name" style="color:var(--gold)">Demo Data — Lucknow West</div>
+        <div class="src-desc">Load 150 pre-built voter records from a sample UP constituency. Try all AI features instantly.</div>
+        <div style="margin-top:8px"><span class="tag t-gold">150 Records</span><span class="tag t-gold">UP Constituency</span><span class="tag t-gold">Instant</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KOBO -->
+  <div class="panel" id="panel-kobo">
+    <div class="card fadeUp" style="border-color:#416FBA44">
+      <div class="card-title">📋 KoboToolbox Integration</div>
+      <div class="card-sub">
+        Get your API token: <b style="color:var(--text)">kf.kobotoolbox.org</b> → Account Settings → API Key
+      </div>
+      <div style="margin-bottom:10px">
+        <div class="lbl">Server</div>
+        <select id="kobo-srv">
+          <option value="https://kf.kobotoolbox.org">Global (kf.kobotoolbox.org)</option>
+          <option value="https://kobo.humanitarianresponse.info">Humanitarian (OCHA)</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="lbl">API Token</div>
+        <div style="position:relative">
+          <input id="kobo-tok" type="password" placeholder="Paste your KoboToolbox API token"/>
+          <button onclick="tp('kobo-tok')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer">👁</button>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn btn-blue" onclick="koboConnect()" id="kobo-btn">🔗 Connect</button>
+        <button class="btn btn-dim" onclick="loadDemo()">🎭 Demo Data</button>
+      </div>
+      <div id="kobo-status" style="margin-top:8px;font-size:11px"></div>
+    </div>
+    <div class="card hidden fadeUp1" id="kobo-forms">
+      <div class="card-title">📝 Select Survey Form</div>
+      <div id="forms-list"></div>
+    </div>
+    <div class="card hidden fadeUp2" id="kobo-sync-card">
+      <div class="card-title">🔄 Sync</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#0d1117;border-radius:8px;border:1px solid var(--ink3);margin-bottom:8px">
+        <div><div style="font-size:11px;font-weight:600">Auto-sync every 5 min</div><div style="font-size:10px;color:var(--muted)">Pull new responses automatically</div></div>
+        <div class="toggle" id="as-toggle" onclick="toggleAS()"></div>
+      </div>
+      <div class="row">
+        <button class="btn btn-green" onclick="koboSync()" id="ksync-btn">⚡ Sync Now</button>
+        <span id="last-sync" style="font-size:10px;color:var(--muted)"></span>
+      </div>
+      <div id="sync-log" class="sync-log hidden"></div>
+    </div>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="panel" id="panel-upload">
+    <div class="card fadeUp">
+      <div class="card-title">📁 Upload File</div>
+      <input type="file" id="file-in" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile(event)"/>
+      <div class="row">
+        <button class="btn btn-gold" onclick="document.getElementById('file-in').click()">📂 Choose File</button>
+        <span style="font-size:11px;color:var(--muted)">.xlsx .xls .csv</span>
+      </div>
+      <div id="file-status"></div>
+    </div>
+    <div class="card fadeUp1">
+      <div class="card-title">🧩 Custom Fields</div>
+      <div id="field-tags" style="margin-bottom:8px"></div>
+      <div class="row">
+        <input id="new-field" placeholder="Add field (e.g. Religion, Income)" style="width:200px"/>
+        <button class="btn btn-blue" onclick="addField()">+ Add</button>
+      </div>
+    </div>
+    <div class="card fadeUp2">
+      <div class="card-title">✍️ Manual Entry</div>
+      <div id="manual-form" class="g3" style="margin-bottom:10px"></div>
+      <button class="btn btn-green" onclick="addManualRow()">+ Add Record</button>
+      <div id="manual-status"></div>
+    </div>
+    <div class="card hidden fadeUp3" id="preview-card">
+      <div class="card-title" id="preview-title">Preview</div>
+      <div style="overflow-x:auto"><table id="preview-table"></table></div>
+      <div id="preview-more" style="font-size:10px;color:var(--muted);margin-top:6px"></div>
+    </div>
+  </div>
+
+  <!-- PREDICT -->
+  <div class="panel" id="panel-predict">
+    <div class="card fadeUp">
+      <div class="card-title">🗳️ Vote Prediction & Strategy</div>
+      <div class="g2" style="margin-bottom:10px">
+        <div><div class="lbl">Candidate Name</div><input id="cand" placeholder="e.g. Rajesh Kumar"/></div>
+        <div><div class="lbl">Party</div><input id="party" placeholder="e.g. BJP, SP, Congress..."/></div>
+      </div>
+      <button class="btn btn-red" onclick="predict()" id="pred-btn">🎯 Predict & Strategise</button>
+      <div id="pred-result" class="hidden ai-box"></div>
+    </div>
+    <div class="card fadeUp1">
+      <div class="card-title">📞 Hinglish Call Script</div>
+      <div class="card-sub">Generate a personalised outreach script for a specific voter segment.</div>
+      <div class="g2" style="margin-bottom:10px">
+        <div><div class="lbl">Target Segment</div><input id="seg" placeholder="e.g. OBC farmers, Women 30-50"/></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn btn-blue" onclick="genScript()" id="script-btn">📋 Generate</button></div>
+      </div>
+      <div id="script-result" class="hidden ai-box" style="border-color:#22c55e30;background:#0a1a0f"></div>
+    </div>
+  </div>
+
+  <!-- IVRS -->
+  <div class="panel" id="panel-ivrs">
+    <div class="card fadeUp">
+      <div class="card-title">📞 IVRS Voice AI — Coming in Phase 2</div>
+      <div class="card-sub">Contextual, personalised phone conversations with voters. The AI knows each voter's name, ward, issue, and family situation — and speaks accordingly.</div>
+      <div style="border:1px solid var(--ink3);border-radius:10px;padding:14px;background:#0d1117;margin-top:4px">
+        <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:10px">Sample IVRS Conversation</div>
+        <div style="font-size:11px;color:var(--muted);line-height:2">
+          <span style="color:var(--blue)">AI:</span> Namaste, kya main Ramesh Kumar ji se baat kar sakta hoon?<br>
+          <span style="color:var(--green)">Voter:</span> Haan, main Ramesh bol raha hoon.<br>
+          <span style="color:var(--blue)">AI:</span> Ramesh ji, main Rajesh Sharma ji ka sahayak hoon. Aap Ward 3, Bazaar Gali mein rehte hain — aapke area ki road repair ke baare mein Rajesh ji ne kaam shuru kiya hai...<br>
+          <span style="color:var(--green)">Voter:</span> Haan, road toh bahut kharab hai. Kab thik hogi?<br>
+          <span style="color:var(--blue)">AI:</span> 15 tarikh tak kaam shuru hoga. Aur aapke jaise vendors ke liye ek permanent market space ka proposal bhi hai...
+        </div>
+      </div>
+      <div style="margin-top:14px">
+        <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:8px">AI Stack for IVRS:</div>
+        <div class="row" style="flex-wrap:wrap">
+          <span class="tag t-blue">Sarvam AI (STT)</span>
+          <span class="tag t-blue">Claude Haiku (Brain)</span>
+          <span class="tag t-green">ElevenLabs (Voice)</span>
+          <span class="tag t-gold">Exotel (Telephony)</span>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <button class="btn btn-gold" onclick="registerIVRS()">📧 Notify Me When Ready</button>
+        <div id="ivrs-msg" style="font-size:11px;color:var(--green);margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ══ STATE ════════════════════════════════════════════════════════════════
+let rows=[], fields=["Name","Age","Caste","Ward","Occupation","Problem","Family_Size","Voted_Last","Phone","Support"];
+let chatHist=[], busy=false, chartInst=null, autoSync=false, asInterval=null;
+let dataSource=null, koboAsset=null, koboTok='', koboSrv='https://kf.kobotoolbox.org';
+const COLS=["#f59e0b","#3b82f6","#22c55e","#8b5cf6","#ef4444","#06b6d4","#f97316","#ec4899","#84cc16","#a78bfa"];
+
+// ══ PANEL NAV ═════════════════════════════════════════════════════════════
+const META={
+  chat:    {t:"💬 AI Chat",s:"Ask anything about your constituency"},
+  score:   {t:"🎯 Popularity Score",s:"Real-time AI-calculated popularity index"},
+  actions: {t:"⚡ Action Plan",s:"Top 5 micro-actions to increase votes fast"},
+  visualise:{t:"📊 Visualise",s:"Charts and breakdowns of your data"},
+  sources: {t:"🔌 Connect Data",s:"KoboToolbox, Excel, or demo data"},
+  kobo:    {t:"📋 KoboToolbox",s:"Live field survey integration"},
+  upload:  {t:"📁 Upload File",s:"Excel, XLS, or CSV"},
+  predict: {t:"🗳️ Predict & Win",s:"Vote share prediction and outreach scripts"},
+  ivrs:    {t:"📞 IVRS Calls",s:"AI-powered personalised voter calls (Phase 2)"},
+};
+const NAV=['chat','score','actions','visualise','sources','kobo','upload','predict','ivrs'];
+
+function go(name){
+  document.querySelectorAll('.panel,.chat-wrap').forEach(p=>{p.classList.remove('active');p.style.display='';});
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const m=META[name];
+  document.getElementById('tb-title').textContent=m.t;
+  document.getElementById('tb-sub').textContent=m.s;
+  const i=NAV.indexOf(name);
+  if(i>=0) document.querySelectorAll('.nav-btn')[i].classList.add('active');
+  if(name==='chat') document.getElementById('panel-chat').classList.add('active');
+  else document.getElementById('panel-'+name).classList.add('active');
+  if(name==='visualise') refreshVis();
+  if(name==='score') renderScore();
+}
+
+// ══ CLAUDE API ════════════════════════════════════════════════════════════
+async function claude(system, msg, hist=[]){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system,messages:[...hist,{role:"user",content:msg}]})
+  });
+  const d=await r.json();
+  return d.content?.[0]?.text||"Koi response nahi mila.";
+}
+
+function sumData(){
+  if(!rows.length) return "Koi data nahi hai.";
+  return `Dataset: ${rows.length} records. Fields: ${fields.join(", ")}.\nSample (5 rows): ${JSON.stringify(rows.slice(0,5),null,2)}`;
+}
+
+function countBy(key){
+  const m={};
+  rows.forEach(r=>{const v=String(r[key]||"Unknown");m[v]=(m[v]||0)+1;});
+  return Object.entries(m).map(([name,value])=>({name,value})).sort((a,b)=>b.value-a.value);
+}
+
+// ══ CHAT ═════════════════════════════════════════════════════════════════
+function nt(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}
+
+function addBubble(txt,role){
+  const c=document.getElementById('chat-msgs');
+  const r=document.createElement('div'); r.className=`msg-row ${role}`;
+  if(role==='b'){
+    r.innerHTML=`<div class="msg-av">⚡</div><div><div class="bubble b">${txt.replace(/\n/g,'<br>')}<div class="btime">${nt()}</div></div></div>`;
+  } else {
+    r.innerHTML=`<div><div class="bubble u">${txt.replace(/\n/g,'<br>')}<div class="btime">${nt()}</div></div></div>`;
+  }
+  c.appendChild(r); c.scrollTop=c.scrollHeight;
+}
+
+function showTyping(){
+  const c=document.getElementById('chat-msgs');
+  const r=document.createElement('div'); r.className='msg-row b'; r.id='typing-r';
+  r.innerHTML=`<div class="msg-av">⚡</div><div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
+  c.appendChild(r); c.scrollTop=c.scrollHeight;
+}
+function rmTyping(){const el=document.getElementById('typing-r');if(el)el.remove();}
+
+async function send(){
+  if(busy) return;
+  const inp=document.getElementById('chat-in');
+  const txt=inp.value.trim(); if(!txt) return;
+  inp.value=''; addBubble(txt,'u');
+  chatHist.push({role:'user',content:txt});
+  busy=true; document.getElementById('chat-status').textContent='typing...'; showTyping();
+  const src=dataSource==='kobo'?'KoboToolbox':dataSource==='file'?'uploaded file':'demo data';
+  const sys=rows.length
+    ?`You are ConstituencyIQ, an expert Indian political data analyst in a chat interface. You have LIVE access to constituency survey data (${src}) with ${rows.length} records. Fields: ${fields.join(", ")}. Data: ${sumData()}. Respond conversationally in 2-4 short paragraphs. Use numbers from the data. Mix Hindi/Hinglish naturally. Be direct and actionable.`
+    :`You are ConstituencyIQ, a political intelligence assistant. No data loaded yet. Warmly ask user to load data: go to Connect Data in sidebar and click Demo Data to try instantly. Be helpful and encouraging.`;
+  try{
+    const rep=await claude(sys,txt,chatHist.slice(-8).slice(0,-1));
+    rmTyping(); addBubble(rep,'b'); chatHist.push({role:'assistant',content:rep});
+  }catch(e){rmTyping();addBubble("Network error. Please try again.","b");}
+  busy=false;
+  document.getElementById('chat-status').textContent=rows.length?`${rows.length} records • Online`:'Load data to begin';
+}
+
+function sc(el){document.getElementById('chat-in').value=el.textContent.trim();send();}
+
+function clearChat(){
+  chatHist=[];
+  document.getElementById('chat-msgs').innerHTML=`
+    <div class="msg-row b"><div class="msg-av">⚡</div>
+    <div><div class="bubble b">Chat cleared! 🙏 Kuch bhi poochho.<div class="btime">${nt()}</div></div></div></div>`;
+}
+
+// ══ SCORE ENGINE ══════════════════════════════════════════════════════════
+function calcScore(){
+  if(!rows.length) return null;
+  // Weighted formula based on survey data signals
+  const total=rows.length;
+  const sup=rows.filter(r=>String(r.Support||r.support||'').toLowerCase().includes('for')||String(r.Support||r.support||'').includes('support')).length;
+  const voted=rows.filter(r=>String(r.Voted_Last||r.voted_last||'').toLowerCase()==='yes').length;
+  const engaged=rows.filter(r=>r.Problem||r.problem).length;
+  const supportPct=(sup/total)*100||35;
+  const turnoutPct=(voted/total)*100||55;
+  const engagePct=(engaged/total)*100||70;
+  const score=Math.round((supportPct*0.4)+(turnoutPct*0.3)+(engagePct*0.2)+10);
+  return Math.min(Math.max(score,15),95);
+}
+
+function renderScore(){
+  const score=calcScore();
+  if(!score){document.getElementById('score-num').textContent='--';return;}
+  const arc=document.getElementById('score-arc');
+  const circumf=339.3;
+  const offset=circumf-(circumf*(score/100));
+  arc.style.strokeDashoffset=offset;
+  arc.style.stroke=score>=60?'#22c55e':score>=40?'#f59e0b':'#ef4444';
+  document.getElementById('score-num').textContent=score;
+  document.getElementById('score-label').textContent=score>=60?'Strong Position 💪':score>=40?'Competitive — Action Needed ⚠️':'Critical — Immediate Action Required 🔴';
+  // Breakdown factors
+  const bd=document.getElementById('score-breakdown');
+  bd.style.display='block';
+  const factors=[
+    {l:'Voter Support Sentiment',v:Math.round((rows.filter(r=>String(r.Support||'').toLowerCase().includes('for')).length/rows.length)*100)||38,c:'#22c55e'},
+    {l:'Past Voter Turnout',v:Math.round((rows.filter(r=>String(r.Voted_Last||'').toLowerCase()==='yes').length/rows.length)*100)||55,c:'#3b82f6'},
+    {l:'Issue Engagement',v:Math.round((rows.filter(r=>r.Problem).length/rows.length)*100)||72,c:'#f59e0b'},
+    {l:'Community Alignment',v:score-5,c:'#8b5cf6'},
+  ];
+  document.getElementById('score-factors').innerHTML=factors.map(f=>`
+    <div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+        <span style="font-size:11px">${f.l}</span>
+        <span style="font-size:11px;font-weight:600;color:${f.c}">${f.v}%</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-bar" style="width:${f.v}%;background:${f.c}"></div></div>
+    </div>`).join('');
+}
+
+async function getScoreAnalysis(){
+  if(!rows.length){alert('Load data first!');return;}
+  const btn=document.getElementById('score-ai-btn');
+  btn.disabled=true;btn.textContent='⏳ Analysing...';
+  const score=calcScore();
+  const sys=`You are a senior Indian political analyst. Give a sharp, honest assessment of the candidate's position based on the data. Be specific. Use numbers. Suggest 2-3 immediate actions. Data: ${sumData()}`;
+  const rep=await claude(sys,`Popularity score is ${score}/100. What does this mean? What are the most important things to focus on right now? Give a 3-paragraph analysis.`);
+  const el=document.getElementById('score-ai-result');
+  el.textContent=rep; el.classList.remove('hidden');
+  btn.disabled=false; btn.textContent='Regenerate Analysis';
+}
+
+// ══ ACTIONS ENGINE ════════════════════════════════════════════════════════
+async function getActions(){
+  if(!rows.length){alert('Load data first!');return;}
+  const btn=document.getElementById('actions-btn');
+  btn.disabled=true; btn.textContent='⏳ Generating...';
+  const sys=`You are an expert Indian political strategist. Based on constituency survey data, generate exactly 5 hyper-local, specific micro-actions the candidate should take. Each action must mention a specific ward or community. Include estimated vote impact. Use this format exactly:
+ACTION 1: [Title]
+Ward/Area: [specific location]
+What to do: [specific action]
+Why: [data-backed reason]
+Expected impact: [X votes / HIGH/MEDIUM impact]
+
+Data: ${sumData()}`;
+  const rep=await claude(sys,"Generate the top 5 actions to increase votes. Be specific, hyperlocal, data-backed.");
+  // Parse into cards
+  const parts=rep.split(/ACTION \d+:/i).filter(p=>p.trim());
+  const list=document.getElementById('actions-list');
+  if(parts.length>0){
+    list.innerHTML=parts.map((p,i)=>{
+      const lines=p.trim().split('\n').filter(l=>l.trim());
+      const title=lines[0]||`Action ${i+1}`;
+      const body=lines.slice(1).join('\n');
+      const impact=body.toLowerCase().includes('high')?'HIGH':'MEDIUM';
+      return `<div class="action-card">
+        <div class="row" style="gap:10px;margin-bottom:8px">
+          <div class="action-num">${i+1}</div>
+          <div class="action-title">${title}</div>
+        </div>
+        <div class="action-desc">${body.replace(/\n/g,'<br>')}</div>
+        <span class="impact-badge impact-${impact.toLowerCase()}">${impact} IMPACT</span>
+      </div>`;
+    }).join('');
+  } else {
+    list.innerHTML=`<div class="ai-box">${rep}</div>`;
+  }
+  btn.disabled=false; btn.textContent='🔄 Regenerate';
+}
+
+// ══ VISUALISE ═════════════════════════════════════════════════════════════
+function refreshVis(){
+  if(!rows.length){
+    document.getElementById('stat-cards').innerHTML='<div class="stat"><div class="stat-v">0</div><div class="stat-l">Load data first</div></div>';
+    return;
+  }
+  const wards=countBy('Ward'||'ward');
+  document.getElementById('stat-cards').innerHTML=[
+    {v:rows.length,l:'Records'},{v:fields.length,l:'Fields'},{v:wards.length,l:'Wards'},
+  ].map(s=>`<div class="stat"><div class="stat-v">${s.v}</div><div class="stat-l">${s.l}</div></div>`).join('');
+  const sel=document.getElementById('chart-field');
+  sel.innerHTML=fields.map(f=>`<option value="${f}">${f}</option>`).join('');
+  renderChart();
+}
+
+function renderChart(){
+  if(!rows.length)return;
+  const field=document.getElementById('chart-field').value;
+  const type=document.getElementById('chart-type').value;
+  const data=countBy(field);
+  if(chartInst){chartInst.destroy();chartInst=null;}
+  chartInst=new Chart(document.getElementById('chart').getContext('2d'),{
+    type,
+    data:{labels:data.map(d=>d.name),datasets:[{data:data.map(d=>d.value),backgroundColor:COLS.map(c=>c+'cc'),borderColor:COLS,borderWidth:1,borderRadius:type==='bar'?4:0}]},
+    options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{family:'DM Sans',size:10}}},tooltip:{callbacks:{label:ctx=>`${ctx.raw} (${((ctx.raw/rows.length)*100).toFixed(1)}%)`}}},
+      scales:type==='bar'?{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2d4520'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e2d4520'}}}:{}
+    }
+  });
+  document.getElementById('bd-title').textContent=`Breakdown — ${field}`;
+  document.getElementById('bd-list').innerHTML=data.slice(0,10).map((d,i)=>`
+    <div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:2px">
+        <span style="font-size:11px">${d.name}</span>
+        <span style="font-size:11px;font-weight:600;color:${COLS[i%COLS.length]}">${d.value} (${((d.value/rows.length)*100).toFixed(1)}%)</span>
+      </div>
+      <div class="prog-wrap"><div class="prog-bar" style="width:${(d.value/rows.length)*100}%;background:${COLS[i%COLS.length]}"></div></div>
+    </div>`).join('');
+}
+
+// ══ KOBO ══════════════════════════════════════════════════════════════════
+function tp(id){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';}
+
+async function koboConnect(){
+  const tok=document.getElementById('kobo-tok').value.trim();
+  if(!tok){setKS('Enter your API token first','err');return;}
+  koboTok=tok; koboSrv=document.getElementById('kobo-srv').value;
+  const btn=document.getElementById('kobo-btn');
+  btn.disabled=true;btn.textContent='Connecting...';
+  setKS('Connecting to KoboToolbox...','');
+  try{
+    const r=await fetch(`${koboSrv}/api/v2/assets/?format=json`,{headers:{'Authorization':`Token ${tok}`}});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const d=await r.json();
+    const forms=(d.results||[]).filter(a=>a.asset_type==='survey');
+    if(!forms.length)throw new Error('No surveys found.');
+    renderForms(forms);
+    setKS(`✓ Connected! ${forms.length} survey(s) found.`,'ok');
+    document.getElementById('kobo-forms').classList.remove('hidden');
+    markSrc('kobo');
+  }catch(e){setKS(`✗ ${e.message}. Try Demo Data for the pilot.`,'err');}
+  btn.disabled=false;btn.textContent='🔗 Connect';
+}
+
+function renderForms(forms){
+  document.getElementById('forms-list').innerHTML=forms.map(f=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:#0d1117;border-radius:8px;margin-bottom:6px;border:1px solid var(--ink3)">
+      <div><div style="font-size:11px;font-weight:600">${f.name}</div><div style="font-size:10px;color:var(--muted)">${f.deployment__submission_count||0} submissions</div></div>
+      <button class="btn btn-blue" onclick="koboSelect('${f.uid}','${f.name.replace(/'/g,'')}')" style="padding:5px 10px;font-size:10px">Load</button>
+    </div>`).join('');
+}
+
+async function koboSelect(uid,name){
+  koboAsset=uid;
+  document.getElementById('kobo-sync-card').classList.remove('hidden');
+  addSL(`Fetching: ${name}...`);
+  await koboSync();
+}
+
+async function koboSync(){
+  if(!koboAsset||!koboTok){addSL('No form selected');return;}
+  const btn=document.getElementById('ksync-btn');
+  btn.disabled=true;btn.textContent='⏳ Syncing...';
+  addSL(`[${nt()}] Syncing...`);
+  try{
+    const r=await fetch(`${koboSrv}/api/v2/assets/${koboAsset}/data/?format=json`,{headers:{'Authorization':`Token ${koboTok}`}});
+    if(!r.ok)throw new Error(`HTTP ${r.status}`);
+    const d=await r.json();
+    const res=(d.results||[]).map(row=>{
+      const c={};
+      Object.entries(row).forEach(([k,v])=>{if(!k.startsWith('_')&&!k.startsWith('meta/')){c[k.includes('/')?k.split('/').pop():k]=v;}});
+      return c;
+    });
+    if(res.length){rows=res;fields=Object.keys(res[0]);dataSource='kobo';updateUI();renderPreview();}
+    addSL(`[${nt()}] ✓ ${rows.length} records synced`);
+    document.getElementById('last-sync').textContent=`Last: ${nt()}`;
+    addBubble(`KoboToolbox sync complete! 📋 ${rows.length} responses loaded. Ask me anything!`,'b');
+    go('chat');
+  }catch(e){addSL(`[${nt()}] ✗ ${e.message}`);}
+  btn.disabled=false;btn.textContent='⚡ Sync Now';
+}
+
+function addSL(msg){const l=document.getElementById('sync-log');l.classList.remove('hidden');l.textContent+=(l.textContent?'\n':'')+msg;l.scrollTop=l.scrollHeight;}
+function setKS(msg,type){const el=document.getElementById('kobo-status');el.textContent=msg;el.className=type==='ok'?'ok':type==='err'?'err':'';}
+function toggleAS(){autoSync=!autoSync;document.getElementById('as-toggle').classList.toggle('on',autoSync);if(autoSync){asInterval=setInterval(koboSync,5*60*1000);addSL(`[${nt()}] Auto-sync ON`);}else{clearInterval(asInterval);addSL(`[${nt()}] Auto-sync OFF`);}}
+
+// ══ DEMO DATA — Lucknow West Style ═══════════════════════════════════════
+function loadDemo(){
+  const castes=['OBC','General','SC','Minority','ST'];
+  const wards=['Ward 1 - Bazaar Area','Ward 2 - Rampur Colony','Ward 3 - New Housing','Ward 4 - Industrial Zone','Ward 5 - Village Sector'];
+  const probs=['Unemployment','Water Supply','Road Repair','Electricity','Education','Healthcare','Corruption','Women Safety'];
+  const occs=['Farmer','Daily Labour','Shop Owner','Street Vendor','Government Job','Private Job','Student','Housewife'];
+  const voted=['Yes','No','First Time'];
+  const supp=['Strongly For','Leaning For','Neutral','Leaning Against','Strongly Against'];
+  const income=['<₹5k','₹5-10k','₹10-20k','₹20-50k','>₹50k'];
+  const demo=[];
+  for(let i=0;i<150;i++){
+    demo.push({
+      Name:`Voter ${i+1}`,
+      Age:18+Math.floor(Math.random()*55),
+      Gender:Math.random()>.5?'Male':'Female',
+      Caste:castes[Math.floor(Math.random()*castes.length)],
+      Ward:wards[Math.floor(Math.random()*wards.length)],
+      Occupation:occs[Math.floor(Math.random()*occs.length)],
+      Problem:probs[Math.floor(Math.random()*probs.length)],
+      Secondary_Problem:probs[Math.floor(Math.random()*probs.length)],
+      Family_Size:2+Math.floor(Math.random()*7),
+      Monthly_Income:income[Math.floor(Math.random()*income.length)],
+      Voted_Last:voted[Math.floor(Math.random()*voted.length)],
+      Support:supp[Math.floor(Math.random()*supp.length)],
+      Phone:`98${Math.floor(10000000+Math.random()*89999999)}`,
+    });
+  }
+  rows=demo; fields=Object.keys(demo[0]); dataSource='demo';
+  markSrc('demo'); updateUI(); renderPreview();
+  // Mark kobo demo too
+  document.getElementById('kobo-sync-card').classList.remove('hidden');
+  document.getElementById('kobo-forms').classList.remove('hidden');
+  document.getElementById('forms-list').innerHTML=`<div style="padding:8px 10px;background:#0d1117;border-radius:8px;border:1px solid #416FBA33"><div style="font-size:11px;font-weight:600">📋 Demo: Lucknow West Constituency Survey</div><div style="font-size:10px;color:var(--muted)">150 responses loaded</div></div>`;
+  addSL(`[${nt()}] ✓ Demo data loaded: 150 records`);
+  addBubble(`Demo data loaded! 🎉 Maine Lucknow West constituency ke 150 voter records load kar liye hain.\n\nAb poochho:\n• "Sabse zyada kya problem hai?"\n• "Kaun sa ward weak hai?"\n• "OBC voters ka support kitna hai?"`,'b');
+  go('chat');
+}
+
+// ══ FILE UPLOAD ═══════════════════════════════════════════════════════════
+function handleFile(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const wb=XLSX.read(ev.target.result,{type:"binary"});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_json(ws);
+      if(data.length){
+        fields=Object.keys(data[0]);rows=data;dataSource='file';
+        setFS(`✓ Loaded ${data.length} records from ${file.name}`,'ok');
+        markSrc('file');updateUI();renderFieldTags();renderManualForm();renderPreview();
+        addBubble(`File loaded! 📁 ${data.length} records from "${file.name}". Fields: ${fields.slice(0,5).join(', ')}${fields.length>5?'...':''}. Kuch bhi poochho!`,'b');
+        go('chat');
+      }
+    }catch{setFS('✗ Could not parse file.','err');}
+  };
+  reader.readAsBinaryString(file);
+}
+
+function setFS(msg,type){const el=document.getElementById('file-status');el.textContent=msg;el.className=type==='ok'?'ok':'err';}
+
+function updateUI(){
+  document.getElementById('data-pill').textContent=rows.length?`✓ ${rows.length} records`:'No data';
+  document.getElementById('chat-status').textContent=rows.length?`${rows.length} records • Online`:'Load data to begin';
+  const sb=document.getElementById('src-badge');
+  if(dataSource){sb.textContent=dataSource==='kobo'?'KoboToolbox':dataSource==='file'?'File Upload':'Demo Data';sb.style.display='inline';}
+}
+
+function markSrc(src){
+  document.querySelectorAll('.src-card').forEach(c=>c.classList.remove('connected'));
+  if(src==='kobo') document.getElementById('sc-kobo')?.classList.add('connected');
+}
+
+function renderFieldTags(){
+  document.getElementById('field-tags').innerHTML=fields.map(f=>`<span class="tag t-blue">${f}</span>`).join('');
+}
+function addField(){
+  const v=document.getElementById('new-field').value.trim();
+  if(v&&!fields.includes(v)){fields.push(v);renderFieldTags();renderManualForm();document.getElementById('new-field').value='';}
+}
+function renderManualForm(){
+  document.getElementById('manual-form').innerHTML=fields.map(f=>`<div><div class="lbl">${f.replace(/_/g,' ')}</div><input id="mf-${f}" placeholder="${f.replace(/_/g,' ')}"/></div>`).join('');
+}
+function addManualRow(){
+  const row={};
+  fields.forEach(f=>{const el=document.getElementById('mf-'+f);row[f]=el?el.value:'';});
+  rows.push(row);fields.forEach(f=>{const el=document.getElementById('mf-'+f);if(el)el.value='';});
+  document.getElementById('manual-status').textContent=`✓ Added. Total: ${rows.length}`;
+  document.getElementById('manual-status').className='ok';
+  updateUI();renderPreview();
+}
+function renderPreview(){
+  if(!rows.length)return;
+  document.getElementById('preview-card').classList.remove('hidden');
+  document.getElementById('preview-title').textContent=`Preview (${rows.length} records)`;
+  const cols=Object.keys(rows[0]);
+  document.getElementById('preview-table').innerHTML=
+    `<thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+     <tbody>${rows.slice(0,8).map(r=>`<tr>${cols.map(c=>`<td>${r[c]??''}</td>`).join('')}</tr>`).join('')}</tbody>`;
+  document.getElementById('preview-more').textContent=rows.length>8?`+${rows.length-8} more rows`:'';
+}
+
+// ══ PREDICT ══════════════════════════════════════════════════════════════
+async function predict(){
+  if(!rows.length){alert('Load data first!');return;}
+  const cand=document.getElementById('cand').value.trim();
+  if(!cand){alert('Enter candidate name!');return;}
+  const party=document.getElementById('party').value.trim();
+  const btn=document.getElementById('pred-btn');
+  btn.disabled=true;btn.textContent='⏳ Predicting...';
+  const sys=`Expert Indian political strategist. Predict with specific % numbers. Format your response in 5 clear sections:
+1. VOTE SHARE: Predicted %
+2. BREAKDOWN: by community/ward
+3. SWING FACTORS: top 3 things that will decide the election
+4. ACTION PLAN: top 5 specific steps
+5. RISK: biggest threats
+Data: ${sumData()}`;
+  const rep=await claude(sys,`Predict for ${cand} from ${party||'Independent'}. Be specific.`);
+  const el=document.getElementById('pred-result');el.textContent=rep;el.classList.remove('hidden');
+  btn.disabled=false;btn.textContent='🔄 Rerun';
+}
+
+async function genScript(){
+  const cand=document.getElementById('cand').value.trim();
+  if(!cand){alert('Enter candidate name in the section above!');return;}
+  const seg=document.getElementById('seg').value.trim();
+  if(!seg){alert('Enter target segment!');return;}
+  const party=document.getElementById('party').value.trim();
+  const btn=document.getElementById('script-btn');
+  btn.disabled=true;btn.textContent='⏳ Writing...';
+  const sys=`Create a natural, warm Hinglish phone script for Indian political campaign. Under 3 minutes. Include greeting, key message, objection handling, close.`;
+  const rep=await claude(sys,`Script for volunteer calling ${seg} voter for ${cand}${party?' from '+party:''}. Make it feel personal, not scripted.`);
+  const el=document.getElementById('script-result');el.textContent=rep;el.classList.remove('hidden');
+  btn.disabled=false;btn.textContent='🔄 New Script';
+}
+
+// ══ IVRS REGISTRATION ════════════════════════════════════════════════════
+function registerIVRS(){
+  document.getElementById('ivrs-msg').textContent='✓ Registered! You will be notified when IVRS goes live.';
+}
+
+// ══ INIT ═════════════════════════════════════════════════════════════════
+renderFieldTags();renderManualForm();
+</script>
+</body>
+</html>
