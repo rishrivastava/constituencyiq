@@ -574,7 +574,7 @@ async function callClaude(system,msg,hist){
     },
     body:JSON.stringify({
       model:'claude-sonnet-4-20250514',
-      max_tokens:1200,
+      max_tokens:1900,
       system:system,
       messages:hist.concat([{role:'user',content:msg}])
     })
