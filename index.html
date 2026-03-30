@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<meta name="description" content="ConstituencyIQ — AI Political Intelligence Platform for Indian Elections"/>
-<title>ConstituencyIQ — Political Intelligence</title>
+<meta name="description" content="ConstituencyIQ - AI Political Intelligence Platform for Indian Elections"/>
+<title>ConstituencyIQ - Political Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
@@ -52,7 +52,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .api-banner{background:linear-gradient(135deg,#7c320010,#f0a50007);border-bottom:1px solid #f0a50022;padding:8px 18px;display:flex;align-items:center;gap:9px;flex-shrink:0}
 .api-banner.hidden{display:none!important}
 .api-input{flex:1;max-width:320px;background:#0d1421;border:1px solid #f0a50030;border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--font)}
-.api-input:focus{border-color:#f0a50055}
 .panel{flex:1;overflow-y:auto;padding:16px;display:none;animation:fadeUp .3s ease}
 .panel.on{display:block}
 .chat-wrap{flex:1;display:none;flex-direction:column;overflow:hidden}
@@ -94,7 +93,6 @@ circle.fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-das
 .score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .score-num{font-size:26px;font-weight:900;color:var(--gold);line-height:1}
 .score-lbl{font-size:9px;color:var(--text3);margin-top:1px}
-.score-verdict{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:11px}
 .stat-card{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:12px;position:relative;overflow:hidden}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
@@ -157,7 +155,7 @@ tr:hover td{background:var(--s3)35}
 .kb-item{padding:9px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;margin-bottom:5px}
 .kb-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px}
 .kb-meta{font-size:10px;color:var(--text3)}
-.kb-preview{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kb-preview{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.5;overflow:hidden}
 .slog{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px;font-size:10px;font-family:monospace;max-height:90px;overflow-y:auto;margin-top:7px;color:var(--green)}
 .toggle{width:30px;height:16px;background:var(--s3);border-radius:8px;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s;border:1px solid var(--border2)}
 .toggle.on{background:var(--green)}
@@ -168,6 +166,11 @@ tr:hover td{background:var(--s3)35}
 .news-cat{font-size:9px;font-weight:700;padding:2px 5px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;display:inline-block}
 .news-title{font-size:11px;font-weight:600;color:var(--text);line-height:1.35;margin-bottom:2px}
 .news-meta{font-size:10px;color:var(--text3)}
+.ivrs-convo{background:#0d1421;border:1px solid var(--border);border-radius:9px;padding:13px;margin-top:10px}
+.ivrs-line{padding:5px 0;font-size:12px;line-height:1.6;border-bottom:1px solid #1e3a5f25}
+.ivrs-line:last-child{border-bottom:none}
+.roadmap-item{padding:7px 0;border-bottom:1px solid #1e3a5f25;font-size:12px;color:var(--text3)}
+.roadmap-item:last-child{border-bottom:none}
 @media(max-width:640px){
   .sidebar{width:46px;min-width:46px}
   .sb-name,.sb-tag,.nav-lbl,.sb-group,.sb-bot{display:none}
@@ -194,32 +197,34 @@ tr:hover td{background:var(--s3)35}
   </div>
   <div class="sb-scroll">
     <div class="sb-group">Intelligence</div>
-    <button class="nav-item on" onclick="go('chat')"><span class="nav-ic">💬</span><span class="nav-lbl">AI Assistant</span></button>
-    <button class="nav-item" onclick="go('score')"><span class="nav-ic">🎯</span><span class="nav-lbl">Popularity Score</span></button>
-    <button class="nav-item" onclick="go('actions')"><span class="nav-ic">⚡</span><span class="nav-lbl">Action Plan</span></button>
-    <button class="nav-item" onclick="go('predict')"><span class="nav-ic">🗳️</span><span class="nav-lbl">Vote Prediction</span></button>
+    <button class="nav-item on" onclick="go('chat')"><span class="nav-ic">&#128172;</span><span class="nav-lbl">AI Assistant</span></button>
+    <button class="nav-item" onclick="go('score')"><span class="nav-ic">&#127919;</span><span class="nav-lbl">Popularity Score</span></button>
+    <button class="nav-item" onclick="go('actions')"><span class="nav-ic">&#9889;</span><span class="nav-lbl">Action Plan</span></button>
+    <button class="nav-item" onclick="go('predict')"><span class="nav-ic">&#128499;</span><span class="nav-lbl">Vote Prediction</span></button>
+    <button class="nav-item" onclick="go('ivrs')"><span class="nav-ic">&#128222;</span><span class="nav-lbl">IVRS Calls</span></button>
     <div class="sb-group">Data</div>
-    <button class="nav-item" onclick="go('lucknow')"><span class="nav-ic">🏙️</span><span class="nav-lbl">Lucknow West</span></button>
-    <button class="nav-item" onclick="go('webfetch')"><span class="nav-ic">🌐</span><span class="nav-lbl">Fetch from Web</span></button>
-    <button class="nav-item" onclick="go('kobo')"><span class="nav-ic">📋</span><span class="nav-lbl">KoboToolbox</span></button>
-    <button class="nav-item" onclick="go('upload')"><span class="nav-ic">📁</span><span class="nav-lbl">Upload File</span></button>
-    <button class="nav-item" onclick="go('visualise')"><span class="nav-ic">📊</span><span class="nav-lbl">Visualise</span></button>
+    <button class="nav-item" onclick="go('lucknow')"><span class="nav-ic">&#127961;</span><span class="nav-lbl">Lucknow West</span></button>
+    <button class="nav-item" onclick="go('webfetch')"><span class="nav-ic">&#127760;</span><span class="nav-lbl">Fetch from Web</span></button>
+    <button class="nav-item" onclick="go('kobo')"><span class="nav-ic">&#128203;</span><span class="nav-lbl">KoboToolbox</span></button>
+    <button class="nav-item" onclick="go('upload')"><span class="nav-ic">&#128193;</span><span class="nav-lbl">Upload File</span></button>
+    <button class="nav-item" onclick="go('visualise')"><span class="nav-ic">&#128202;</span><span class="nav-lbl">Visualise</span></button>
   </div>
   <div class="sb-bot">
     <div class="st-pill"><div class="st-dot" id="ai-dot"></div><span id="ai-st-txt">Add API key</span></div>
+    <div id="data-pill" style="margin-top:6px;font-size:10px;color:var(--text3);text-align:center">No data</div>
   </div>
 </div>
 
 <div class="main">
   <div class="api-banner" id="api-banner">
-    <span style="font-size:11px;color:var(--gold);font-weight:700;white-space:nowrap">⚙️ Setup:</span>
+    <span style="font-size:11px;color:var(--gold);font-weight:700;white-space:nowrap">Setup:</span>
     <input class="api-input" type="password" id="api-key-in" placeholder="Paste Anthropic API key (sk-ant-api03-...)"/>
     <button class="btn btn-gold btn-sm" onclick="saveKey()">Activate AI</button>
-    <span style="font-size:10px;color:var(--text3)">Stored locally. <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold)">Get free key</a></span>
+    <span style="font-size:10px;color:var(--text3)">Stored locally only. <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold)">Get free key</a></span>
   </div>
 
   <div class="topbar">
-    <div><div class="tb-title" id="tb-title">💬 AI Assistant</div><div class="tb-sub" id="tb-sub">Ask anything in Hindi, English, or Hinglish</div></div>
+    <div><div class="tb-title" id="tb-title">AI Assistant</div><div class="tb-sub" id="tb-sub">Ask anything in Hindi, English, or Hinglish</div></div>
     <div class="tb-right">
       <span class="badge badge-gold" id="src-badge" style="display:none"></span>
       <span class="badge badge-blue" id="rec-badge" style="display:none"></span>
@@ -230,44 +235,146 @@ tr:hover td{background:var(--s3)35}
   <!-- CHAT -->
   <div class="chat-wrap on" id="panel-chat">
     <div class="chat-topbar">
-      <div class="chat-av">🤖</div>
+      <div class="chat-av">&#129302;</div>
       <div><div class="chat-nm">ConstituencyIQ Assistant</div><div class="chat-st-t" id="chat-st-t">Lucknow West loaded</div></div>
       <button class="btn btn-dim btn-sm" style="margin-left:auto" onclick="clearChat()">Clear</button>
     </div>
     <div class="chat-msgs" id="chat-msgs"></div>
     <div class="chips">
-      <div class="chip" onclick="sc(this)">📊 Lucknow West summary</div>
-      <div class="chip" onclick="sc(this)">🏘️ Weakest ward kaun sa?</div>
-      <div class="chip" onclick="sc(this)">🗳️ SP 2022 mein kaise jeeta?</div>
-      <div class="chip" onclick="sc(this)">👥 Muslim voter strategy</div>
-      <div class="chip" onclick="sc(this)">⚡ Win karne ke liye kya karein?</div>
-      <div class="chip" onclick="sc(this)">📰 Current issues kya hain?</div>
+      <div class="chip" onclick="sc(this)">Lucknow West summary</div>
+      <div class="chip" onclick="sc(this)">Weakest ward kaun sa hai?</div>
+      <div class="chip" onclick="sc(this)">SP 2022 mein kaise jeeta?</div>
+      <div class="chip" onclick="sc(this)">Muslim voter strategy</div>
+      <div class="chip" onclick="sc(this)">Win karne ke liye top 5 actions?</div>
+      <div class="chip" onclick="sc(this)">Current issues kya hain?</div>
     </div>
     <div class="chat-input-row">
-      <input class="chat-in" id="chat-in" placeholder="Kuch bhi poochho — Hindi, English, Hinglish..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"/>
+      <input class="chat-in" id="chat-in" placeholder="Kuch bhi poochho - Hindi, English, Hinglish..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"/>
       <button class="send-btn" onclick="sendMsg()">&#10148;</button>
+    </div>
+  </div>
+
+  <!-- SCORE -->
+  <div class="panel" id="panel-score">
+    <div class="card">
+      <div class="card-title">Popularity Score</div>
+      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
+        <div class="score-ring">
+          <svg viewBox="0 0 110 110" width="110" height="110">
+            <circle class="track" cx="55" cy="55" r="46"/>
+            <circle class="fill" id="score-arc" cx="55" cy="55" r="46" stroke="#f0a500" stroke-dasharray="289.03" stroke-dashoffset="289.03"/>
+          </svg>
+          <div class="score-center"><div class="score-num" id="score-num">--</div><div class="score-lbl">/ 100</div></div>
+        </div>
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px" id="score-verdict">Click to calculate</div>
+          <div id="score-explain" style="font-size:11px;color:var(--text2);line-height:1.55">Uses survey data and constituency intelligence to calculate your popularity index.</div>
+        </div>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="calcScore()" id="score-btn">Calculate Score</button>
+    </div>
+    <div class="card" id="score-factors-card" style="display:none">
+      <div class="card-title">Score Breakdown</div>
+      <div id="score-factors"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">AI Analysis</div>
+      <div class="card-sub">What this score means - strengths, risks, immediate actions.</div>
+      <div id="score-ai" class="ai-out" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="panel" id="panel-actions">
+    <div class="card">
+      <div class="card-title">Top 5 Actions to Win</div>
+      <div class="card-sub">AI-generated hyperlocal micro-actions ranked by vote impact. Specific to Lucknow West wards and communities.</div>
+      <button class="btn btn-gold btn-sm" onclick="getActions()" id="actions-btn">Generate Action Plan</button>
+      <div id="actions-list" style="margin-top:11px"></div>
+    </div>
+  </div>
+
+  <!-- PREDICT -->
+  <div class="panel" id="panel-predict">
+    <div class="card">
+      <div class="card-title">Vote Prediction Engine</div>
+      <div class="g2" style="margin-bottom:10px">
+        <div><div class="lbl">Candidate Name</div><input id="cand" placeholder="e.g. Rajesh Kumar"/></div>
+        <div><div class="lbl">Party</div><input id="cparty" placeholder="e.g. BJP, SP, BSP..."/></div>
+      </div>
+      <button class="btn btn-red btn-sm" onclick="predict()" id="pred-btn">Predict and Strategise</button>
+      <div id="pred-result" class="ai-out" style="display:none"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Hinglish Voter Call Script</div>
+      <div class="g2" style="margin-bottom:10px">
+        <div><div class="lbl">Target Segment</div><input id="seg" placeholder="e.g. OBC mahila, Muslim youth"/></div>
+        <div style="display:flex;align-items:flex-end"><button class="btn btn-blue btn-sm" onclick="genScript()" id="script-btn">Generate Script</button></div>
+      </div>
+      <div id="script-result" class="ai-out gn" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- IVRS -->
+  <div class="panel" id="panel-ivrs">
+    <div class="card" style="border-color:#f0a50022">
+      <div class="card-title">IVRS Voice AI - Contextual Voter Calls</div>
+      <div class="card-sub">The IVRS AI calls voters and holds a real, personalised conversation - not a recorded message. It knows each voter's name, ward, issue, family situation, and the candidate's specific promise for their area. Try the demo below.</div>
+      <div class="g2" style="margin-bottom:10px">
+        <div><div class="lbl">Voter Profile (from survey data)</div><input id="ivrs-voter" placeholder="e.g. Ramesh Yadav, Rajajipuram, OBC, waterlogging issue"/></div>
+        <div><div class="lbl">Calling on behalf of</div><input id="ivrs-cand" placeholder="e.g. Candidate Name (Party)"/></div>
+      </div>
+      <button class="btn btn-gold btn-sm" onclick="genIVRSDemo()" id="ivrs-gen-btn">Generate Demo Call Transcript</button>
+      <div id="ivrs-output" class="ivrs-convo" style="display:none"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">How IVRS Works - Live Example</div>
+      <div class="ivrs-convo">
+        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Namaste, kya main Ramesh Kumar ji se baat kar sakta hoon? Main Rajesh Sharma ji ki campaign se call kar raha hoon.</div>
+        <div class="ivrs-line"><span style="color:var(--green);font-weight:600">Voter: </span>Haan, main Ramesh hoon. Kaun hai aap?</div>
+        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Ramesh ji, main Rajesh Sharma ji ka sahayak hoon. Aap Ward 1, Rajajipuram mein rehte hain - wahan waterlogging ki bahut badi problem hai. Rajesh ji ne is par specifically kaam karna start kar diya hai. 15 tarikh tak drain repair work shuru hoga aapke area mein.</div>
+        <div class="ivrs-line"><span style="color:var(--green);font-weight:600">Voter: </span>Haan yaar, har monsoon mein ghar ke saamne paani bhar jaata hai. Kab thik hoga?</div>
+        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Bilkul samajh sakta hoon Ramesh ji. Is baar permanent solution ke liye underground drainage proposal approved ho gaya hai. Aapke ward ke 847 log is se directly benefit karenge. Aap Rajesh ji ko support karenge?</div>
+        <div class="ivrs-line"><span style="color:var(--green);font-weight:600">Voter: </span>Dekho, pehle kaam dikhao phir vote milega.</div>
+        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Bilkul sahi baat hai Ramesh ji. Rajesh ji ka exactly yahi kehna hai - kaam se vote, wada se nahi. 15 tarikh ko personally site visit hogi. Ek baar aur mauka dijiye. Dhanyawad!</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">AI Stack for IVRS</div>
+      <div class="row" style="flex-wrap:wrap;margin-bottom:12px">
+        <span class="tag tag-blue">Sarvam AI - Speech to Text (Indian languages)</span>
+        <span class="tag tag-blue">Claude Haiku - Conversation Brain</span>
+        <span class="tag tag-green">ElevenLabs - Natural Hindi Voice</span>
+        <span class="tag tag-gold">Exotel - Indian Telephony</span>
+      </div>
+      <div class="card-sub">Phase 2 feature. Backend integration required. Est. cost: Rs 0.35/minute call + AI processing.</div>
+      <div class="roadmap-item">Phase 2: WhatsApp Business API integration</div>
+      <div class="roadmap-item">Phase 2: Ward-level heatmap on Google Maps</div>
+      <div class="roadmap-item">Phase 2: Mobile Android app for field workers</div>
+      <div class="roadmap-item">Phase 3: Candidate voice cloning via ElevenLabs</div>
+      <div class="roadmap-item">Phase 3: Real-time call outcome sync to dashboard</div>
     </div>
   </div>
 
   <!-- LUCKNOW -->
   <div class="panel" id="panel-lucknow">
     <div class="intel-grid">
-      <div class="intel-card"><div class="intel-label">Total Electors</div><div class="intel-val">~3.9 Lakh</div><div class="intel-sub">2022 election rolls</div></div>
-      <div class="intel-card"><div class="intel-label">2022 Winner</div><div class="intel-val" style="color:var(--red)">Armaan Khan (SP)</div><div class="intel-sub">48.19% · Margin: 8,184</div></div>
-      <div class="intel-card"><div class="intel-label">Runner-up</div><div class="intel-val" style="color:var(--gold)">Anjani Shrivastav (BJP)</div><div class="intel-sub">45.03% — razor thin</div></div>
-      <div class="intel-card"><div class="intel-label">Muslim Voters</div><div class="intel-val">~35%</div><div class="intel-sub">Decisive in SP's 2022 win</div></div>
+      <div class="intel-card"><div class="intel-label">Total Electors</div><div class="intel-val">3.9 Lakh</div><div class="intel-sub">2022 election rolls</div></div>
+      <div class="intel-card"><div class="intel-label">2022 Winner</div><div class="intel-val" style="color:var(--red)">Armaan Khan SP</div><div class="intel-sub">48.19% - Margin 8184</div></div>
+      <div class="intel-card"><div class="intel-label">Runner-up</div><div class="intel-val" style="color:var(--gold)">Anjani Shrivastav BJP</div><div class="intel-sub">45.03% - Razor thin</div></div>
+      <div class="intel-card"><div class="intel-label">Muslim Voters</div><div class="intel-val">~35%</div><div class="intel-sub">Decisive in SP 2022 win</div></div>
       <div class="intel-card"><div class="intel-label">Voter Turnout</div><div class="intel-val">65.4%</div><div class="intel-sub">Above UP avg of 60.4%</div></div>
       <div class="intel-card"><div class="intel-label">History</div><div class="intel-val">BJP 7 wins</div><div class="intel-sub">SP 2 wins since 1977</div></div>
     </div>
     <div class="card">
-      <div class="card-title">🗺️ Areas &amp; Issues</div>
+      <div class="card-title">Key Areas and Issues</div>
       <div class="tbl-wrap"><table>
         <thead><tr><th>Area</th><th>Profile</th><th>Key Issue</th><th>Community</th></tr></thead>
         <tbody>
           <tr><td>Rajajipuram</td><td>Dense residential</td><td>Waterlogging, roads</td><td>OBC, SC</td></tr>
           <tr><td>Alambagh</td><td>Commercial hub</td><td>Traffic, vendor zone</td><td>Mixed traders</td></tr>
           <tr><td>Nishatganj</td><td>Urban mixed</td><td>Unemployment</td><td>Muslim OBC</td></tr>
-          <tr><td>Tulsi Nagar</td><td>Middle-class colony</td><td>Education, sanitation</td><td>Brahmin, Kayastha</td></tr>
+          <tr><td>Tulsi Nagar</td><td>Middle class</td><td>Education, sanitation</td><td>Brahmin, Kayastha</td></tr>
           <tr><td>Sadar</td><td>Old city dense</td><td>Healthcare, drainage</td><td>Muslim majority</td></tr>
           <tr><td>Aminabad</td><td>Old commercial</td><td>Parking, infra</td><td>Muslim traders</td></tr>
           <tr><td>Naka Hindola</td><td>Working class</td><td>Unemployment, security</td><td>OBC, SC</td></tr>
@@ -275,15 +382,15 @@ tr:hover td{background:var(--s3)35}
       </table></div>
     </div>
     <div class="card">
-      <div class="card-title">📊 Community Breakdown</div>
+      <div class="card-title">Community Breakdown</div>
       <canvas id="community-chart" style="max-height:200px"></canvas>
     </div>
     <div class="card">
-      <div class="card-title">📰 Ground Issues — Intelligence Feed</div>
+      <div class="card-title">Ground Issues - Intelligence Feed</div>
       <div id="lko-issues"></div>
     </div>
     <div class="card">
-      <div class="card-title">🗳️ Election History</div>
+      <div class="card-title">Election History</div>
       <div class="tbl-wrap"><table>
         <thead><tr><th>Year</th><th>Winner</th><th>Party</th><th>Votes</th><th>Margin</th></tr></thead>
         <tbody>
@@ -300,19 +407,19 @@ tr:hover td{background:var(--s3)35}
   <!-- WEB FETCH -->
   <div class="panel" id="panel-webfetch">
     <div class="card" style="border-color:#f0a50022">
-      <div class="card-title">🌐 Fetch Intelligence from Web URLs</div>
-      <div class="card-sub">Add any URL — news article, Wikipedia, government report. AI reads and analyses the content, making it available in chat.</div>
+      <div class="card-title">Fetch Intelligence from Web URLs</div>
+      <div class="card-sub">Add any URL - news article, Wikipedia, government report. AI reads the content and makes it available in chat.</div>
       <div class="row" style="margin-bottom:10px">
         <input id="url-in" placeholder="https://..." style="flex:1"/>
         <input id="url-lbl" placeholder="Label" style="width:140px"/>
-        <button class="btn btn-gold btn-sm" onclick="addUrl()">+ Add</button>
+        <button class="btn btn-gold btn-sm" onclick="addUrl()">Add URL</button>
       </div>
       <div style="margin-bottom:11px">
         <div class="lbl" style="margin-bottom:5px">Quick Add</div>
         <div class="row">
           <button class="btn btn-dim btn-sm" onclick="quickUrl('https://en.wikipedia.org/wiki/Lucknow_West_Assembly_constituency','Wiki: LKO West')">Wiki: LKO West</button>
           <button class="btn btn-dim btn-sm" onclick="quickUrl('https://en.wikipedia.org/wiki/Lucknow','Wiki: Lucknow')">Wiki: Lucknow</button>
-          <button class="btn btn-dim btn-sm" onclick="quickUrl('https://en.wikipedia.org/wiki/2022_Uttar_Pradesh_legislative_assembly_election','2022 UP Election')">UP 2022 Election</button>
+          <button class="btn btn-dim btn-sm" onclick="quickUrl('https://en.wikipedia.org/wiki/2022_Uttar_Pradesh_legislative_assembly_election','UP 2022 Election')">UP 2022 Election</button>
         </div>
       </div>
       <div id="url-list"></div>
@@ -320,102 +427,41 @@ tr:hover td{background:var(--s3)35}
     </div>
     <div class="card" id="kb-card" style="display:none">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <div class="card-title" style="margin-bottom:0">📚 Knowledge Base</div>
+        <div class="card-title" style="margin-bottom:0">Knowledge Base</div>
         <span class="badge badge-green" id="kb-count">0 sources</span>
       </div>
       <div class="card-sub">Fetched content is available to AI in chat.</div>
       <div id="kb-list"></div>
-      <button class="btn btn-blue btn-sm" style="margin-top:7px" onclick="analyseKB()">🧠 Analyse All with AI</button>
+      <button class="btn btn-blue btn-sm" style="margin-top:7px" onclick="analyseKB()">Analyse All with AI</button>
       <div id="kb-analysis" class="ai-out" style="display:none"></div>
-    </div>
-  </div>
-
-  <!-- SCORE -->
-  <div class="panel" id="panel-score">
-    <div class="card">
-      <div class="card-title">🎯 Popularity Score</div>
-      <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
-        <div class="score-ring">
-          <svg viewBox="0 0 110 110" width="110" height="110">
-            <circle class="track" cx="55" cy="55" r="46"/>
-            <circle class="fill" id="score-arc" cx="55" cy="55" r="46" stroke="#f0a500" stroke-dasharray="289.03" stroke-dashoffset="289.03"/>
-          </svg>
-          <div class="score-center"><div class="score-num" id="score-num">--</div><div class="score-lbl">/ 100</div></div>
-        </div>
-        <div style="flex:1;min-width:160px">
-          <div class="score-verdict" id="score-verdict">Click to calculate</div>
-          <div id="score-explain" style="font-size:11px;color:var(--text2);line-height:1.55;margin-top:4px">Uses survey data and constituency intelligence to calculate your popularity index.</div>
-        </div>
-      </div>
-      <button class="btn btn-gold btn-sm" onclick="calcScore()" id="score-btn">🧠 Calculate Score</button>
-    </div>
-    <div class="card" id="score-factors-card" style="display:none">
-      <div class="card-title">📊 Breakdown</div>
-      <div id="score-factors"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">🧠 AI Analysis</div>
-      <div class="card-sub">What this score means — strengths, risks, immediate actions.</div>
-      <div id="score-ai" class="ai-out" style="display:none"></div>
-    </div>
-  </div>
-
-  <!-- ACTIONS -->
-  <div class="panel" id="panel-actions">
-    <div class="card">
-      <div class="card-title">⚡ Top 5 Actions to Win</div>
-      <div class="card-sub">AI-generated hyperlocal micro-actions ranked by vote impact. Specific to Lucknow West wards and communities.</div>
-      <button class="btn btn-gold btn-sm" onclick="getActions()" id="actions-btn">🧠 Generate Action Plan</button>
-      <div id="actions-list" style="margin-top:11px"></div>
-    </div>
-  </div>
-
-  <!-- PREDICT -->
-  <div class="panel" id="panel-predict">
-    <div class="card">
-      <div class="card-title">🗳️ Vote Prediction</div>
-      <div class="g2" style="margin-bottom:10px">
-        <div><div class="lbl">Candidate Name</div><input id="cand" placeholder="e.g. Rajesh Kumar"/></div>
-        <div><div class="lbl">Party</div><input id="cparty" placeholder="e.g. BJP, SP, BSP..."/></div>
-      </div>
-      <button class="btn btn-red btn-sm" onclick="predict()" id="pred-btn">🎯 Predict &amp; Strategise</button>
-      <div id="pred-result" class="ai-out" style="display:none"></div>
-    </div>
-    <div class="card">
-      <div class="card-title">📞 Hinglish Call Script</div>
-      <div class="g2" style="margin-bottom:10px">
-        <div><div class="lbl">Target Segment</div><input id="seg" placeholder="e.g. OBC mahila, Muslim youth"/></div>
-        <div style="display:flex;align-items:flex-end"><button class="btn btn-blue btn-sm" onclick="genScript()" id="script-btn">📋 Generate</button></div>
-      </div>
-      <div id="script-result" class="ai-out gn" style="display:none"></div>
     </div>
   </div>
 
   <!-- KOBO -->
   <div class="panel" id="panel-kobo">
     <div class="card" style="border-color:#416FBA30">
-      <div class="card-title">📋 KoboToolbox Integration</div>
-      <div class="card-sub">Free API: <b style="color:var(--text)">kf.kobotoolbox.org</b> → Account Settings → API Key</div>
+      <div class="card-title">KoboToolbox Integration</div>
+      <div class="card-sub">Free API: kf.kobotoolbox.org then Account Settings then API Key</div>
       <div style="margin-bottom:9px"><div class="lbl">Server</div>
         <select id="kobo-srv"><option value="https://kf.kobotoolbox.org">Global (kf.kobotoolbox.org)</option><option value="https://kobo.humanitarianresponse.info">Humanitarian</option></select>
       </div>
       <div style="margin-bottom:10px"><div class="lbl">API Token</div>
-        <div style="position:relative"><input id="kobo-tok" type="password" placeholder="Paste your token here"/><button onclick="tp('kobo-tok')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">👁</button></div>
+        <div style="position:relative"><input id="kobo-tok" type="password" placeholder="Paste your token here"/><button onclick="tp('kobo-tok')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">Show</button></div>
       </div>
       <div class="row">
-        <button class="btn btn-blue btn-sm" onclick="koboConnect()" id="kobo-btn">🔗 Connect</button>
-        <button class="btn btn-dim btn-sm" onclick="loadDemo()">🎭 Load Demo</button>
+        <button class="btn btn-blue btn-sm" onclick="koboConnect()" id="kobo-btn">Connect</button>
+        <button class="btn btn-dim btn-sm" onclick="loadDemo()">Load Demo Data</button>
       </div>
       <div id="kobo-st" style="margin-top:7px;font-size:11px"></div>
     </div>
-    <div class="card" id="kobo-forms-card" style="display:none"><div class="card-title">📝 Survey Forms</div><div id="forms-list"></div></div>
+    <div class="card" id="kobo-forms-card" style="display:none"><div class="card-title">Survey Forms</div><div id="forms-list"></div></div>
     <div class="card" id="kobo-sync-card" style="display:none">
-      <div class="card-title">🔄 Sync</div>
+      <div class="card-title">Sync Settings</div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;background:var(--bg);border-radius:7px;border:1px solid var(--border);margin-bottom:8px">
         <div><div style="font-size:11px;font-weight:600">Auto-sync every 5 min</div><div style="font-size:10px;color:var(--text3)">Pull new responses automatically</div></div>
         <div class="toggle" id="as-tog" onclick="toggleAS()"></div>
       </div>
-      <div class="row"><button class="btn btn-green btn-sm" onclick="koboSync()" id="ksync-btn">⚡ Sync Now</button><span id="last-sync" style="font-size:10px;color:var(--text3)"></span></div>
+      <div class="row"><button class="btn btn-green btn-sm" onclick="koboSync()" id="ksync-btn">Sync Now</button><span id="last-sync" style="font-size:10px;color:var(--text3)"></span></div>
       <div id="sync-log" class="slog" style="display:none"></div>
     </div>
   </div>
@@ -423,13 +469,13 @@ tr:hover td{background:var(--s3)35}
   <!-- UPLOAD -->
   <div class="panel" id="panel-upload">
     <div class="card">
-      <div class="card-title">📁 Upload Survey Data</div>
+      <div class="card-title">Upload Survey Data</div>
       <input type="file" id="file-in" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile(event)"/>
-      <div class="row"><button class="btn btn-gold btn-sm" onclick="document.getElementById('file-in').click()">📂 Choose File</button><span style="font-size:11px;color:var(--text3)">.xlsx · .xls · .csv</span></div>
+      <div class="row"><button class="btn btn-gold btn-sm" onclick="document.getElementById('file-in').click()">Choose File</button><span style="font-size:11px;color:var(--text3)">.xlsx .xls .csv</span></div>
       <div id="file-st"></div>
     </div>
-    <div class="card"><div class="card-title">🧩 Fields</div><div id="field-tags" style="margin-bottom:7px"></div><div class="row"><input id="new-field" placeholder="Add field" style="width:160px"/><button class="btn btn-blue btn-sm" onclick="addField()">+ Add</button></div></div>
-    <div class="card"><div class="card-title">✍️ Manual Entry</div><div id="manual-form" class="g3" style="margin-bottom:9px"></div><button class="btn btn-green btn-sm" onclick="addManualRow()">+ Add Record</button><div id="manual-st"></div></div>
+    <div class="card"><div class="card-title">Custom Fields</div><div id="field-tags" style="margin-bottom:7px"></div><div class="row"><input id="new-field" placeholder="Add field" style="width:160px"/><button class="btn btn-blue btn-sm" onclick="addField()">Add</button></div></div>
+    <div class="card"><div class="card-title">Manual Entry</div><div id="manual-form" class="g3" style="margin-bottom:9px"></div><button class="btn btn-green btn-sm" onclick="addManualRow()">Add Record</button><div id="manual-st"></div></div>
     <div class="card" id="preview-card" style="display:none"><div class="card-title" id="preview-title">Preview</div><div class="tbl-wrap"><table id="preview-tbl"></table></div><div id="preview-more" style="font-size:10px;color:var(--text3);margin-top:5px"></div></div>
   </div>
 
@@ -437,11 +483,11 @@ tr:hover td{background:var(--s3)35}
   <div class="panel" id="panel-visualise">
     <div class="stat-row" id="stat-row"></div>
     <div class="card">
-      <div class="card-title">📊 Data Explorer</div>
+      <div class="card-title">Data Explorer</div>
       <div class="row" style="margin-bottom:10px">
         <div style="flex:1"><div class="lbl">Field</div><select id="chart-field" onchange="renderChart()"></select></div>
         <div style="width:105px"><div class="lbl">Type</div><select id="chart-type" onchange="renderChart()"><option value="bar">Bar</option><option value="pie">Pie</option><option value="doughnut">Doughnut</option></select></div>
-        <button class="btn btn-dim btn-sm" style="margin-top:14px" onclick="refreshVis()">↻</button>
+        <button class="btn btn-dim btn-sm" style="margin-top:14px" onclick="refreshVis()">Refresh</button>
       </div>
       <canvas id="main-chart" style="max-height:230px"></canvas>
     </div>
@@ -460,16 +506,21 @@ var COLS=["#f0a500","#2563eb","#10b981","#7c3aed","#ef4444","#06b6d4","#ea580c",
 
 function saveKey(){
   var k=document.getElementById('api-key-in').value.trim();
-  if(!k||!k.startsWith('sk-')){alert('Enter a valid Anthropic API key (starts with sk-)');return;}
-  apiKey=k;localStorage.setItem('ciq_k',k);
+  if(!k||!k.startsWith('sk-')){
+    alert('Enter a valid Anthropic API key starting with sk-');
+    return;
+  }
+  apiKey=k;
+  localStorage.setItem('ciq_k',k);
   document.getElementById('api-banner').classList.add('hidden');
   document.getElementById('ai-dot').classList.add('live');
   document.getElementById('ai-st-txt').textContent='AI Active';
   addBubble('API key saved! Main ab fully active hoon. Kuch bhi poochho Lucknow West ke baare mein!','b');
 }
+
 function loadKey(){
   var k=localStorage.getItem('ciq_k');
-  if(k&&k.startsWith('sk-')){
+  if(k && k.startsWith('sk-')){
     apiKey=k;
     document.getElementById('api-banner').classList.add('hidden');
     document.getElementById('api-key-in').value=k;
@@ -483,13 +534,14 @@ var META={
   score:{t:"🎯 Popularity Score",s:"AI-calculated popularity index"},
   actions:{t:"⚡ Action Plan",s:"Top 5 micro-actions to increase votes"},
   predict:{t:"🗳️ Vote Prediction",s:"AI vote share forecast"},
+  ivrs:{t:"📞 IVRS Voice AI",s:"Contextual voter phone calls"},
   lucknow:{t:"🏙️ Lucknow West (#171)",s:"Real constituency data and election intelligence"},
   webfetch:{t:"🌐 Fetch from Web",s:"Add any URL as AI knowledge source"},
   kobo:{t:"📋 KoboToolbox",s:"Live field survey integration"},
   upload:{t:"📁 Upload File",s:"Excel, XLS, or CSV"},
   visualise:{t:"📊 Visualise Data",s:"Charts and breakdowns"}
 };
-var NAV_ORDER=['chat','score','actions','predict','lucknow','webfetch','kobo','upload','visualise'];
+var NAV_ORDER=['chat','score','actions','predict','ivrs','lucknow','webfetch','kobo','upload','visualise'];
 
 function go(name){
   document.querySelectorAll('.panel,.chat-wrap').forEach(function(p){p.classList.remove('on');});
@@ -499,8 +551,12 @@ function go(name){
   document.getElementById('tb-sub').textContent=m.s;
   var i=NAV_ORDER.indexOf(name);
   if(i>=0) document.querySelectorAll('.nav-item')[i].classList.add('on');
-  if(name==='chat') document.getElementById('panel-chat').classList.add('on');
-  else { var p=document.getElementById('panel-'+name); if(p) p.classList.add('on'); }
+  if(name==='chat'){
+    document.getElementById('panel-chat').classList.add('on');
+  } else {
+    var p=document.getElementById('panel-'+name);
+    if(p) p.classList.add('on');
+  }
   if(name==='visualise') refreshVis();
   if(name==='lucknow') renderLKO();
 }
@@ -516,17 +572,29 @@ async function callClaude(system,msg,hist){
       'anthropic-version':'2023-06-01',
       'anthropic-dangerous-direct-browser-access':'true'
     },
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:system,messages:hist.concat([{role:'user',content:msg}])})
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1200,
+      system:system,
+      messages:hist.concat([{role:'user',content:msg}])
+    })
   });
-  if(!r.ok){var e=await r.json();throw new Error(e.error&&e.error.message?e.error.message:'HTTP '+r.status);}
+  if(!r.ok){
+    var e=await r.json();
+    throw new Error(e.error && e.error.message ? e.error.message : 'HTTP '+r.status);
+  }
   var d=await r.json();
-  return d.content&&d.content[0]?d.content[0].text:'No response.';
+  return d.content && d.content[0] ? d.content[0].text : 'No response.';
 }
 
 function buildSys(){
-  var kb=knowledgeBase.length?'\n\nKNOWLEDGE BASE:\n'+knowledgeBase.map(function(k){return '['+k.label+']: '+k.summary;}).join('\n\n'):'';
-  var data=rows.length?'\n\nSURVEY DATA: '+rows.length+' records. Fields: '+fields.join(', ')+'\nSample: '+JSON.stringify(rows.slice(0,4)):'';
-  return 'You are ConstituencyIQ, expert AI political analyst for Lucknow West (Vidhan Sabha #171, UP).\n\nCONSTITUENCY FACTS:\n- 3.9 lakh electors\n- 2022: Armaan Khan (SP) won 48.19% (1,24,497 votes), margin 8,184 over BJP Anjani Shrivastav (45.03%)\n- History: BJP won 7 times since 1977, SP won 2 times (2012, 2022) — BJP stronghold SP recently flipped\n- Muslim voters ~35% — decisive swing community\n- Key communities: Muslim, OBC (Yadav), Brahmin, Kayastha, SC, Vaishya\n- Areas: Rajajipuram (OBC/SC, waterlogging), Alambagh (mixed, vendor issues), Nishatganj (Muslim, unemployment), Tulsi Nagar (Brahmin/Kayastha, education), Sadar (Muslim, healthcare), Aminabad (Muslim traders, parking), Naka Hindola (OBC/SC, unemployment)\n- Lok Sabha MP: Raj Nath Singh (BJP)\n'+kb+data+'\n\nSTYLE: Sharp political consultant. Mix Hindi/Hinglish naturally. Data-backed. 2-4 paragraphs max.';
+  var kb=knowledgeBase.length
+    ? '\n\nKNOWLEDGE BASE:\n'+knowledgeBase.map(function(k){return '['+k.label+']: '+k.summary;}).join('\n\n')
+    : '';
+  var data=rows.length
+    ? '\n\nSURVEY DATA: '+rows.length+' records. Fields: '+fields.join(', ')+'\nSample: '+JSON.stringify(rows.slice(0,4))
+    : '';
+  return 'You are ConstituencyIQ, expert AI political analyst for Lucknow West (Vidhan Sabha #171, UP).\n\nFACTS:\n- 3.9 lakh electors\n- 2022: Armaan Khan (SP) won 48.19%, margin 8,184 over BJP Anjani Shrivastav (45.03%)\n- History: BJP won 7 times since 1977, SP won 2012 and 2022\n- Muslim voters ~35%, decisive swing community\n- Communities: Muslim OBC, Hindu OBC (Yadav), Brahmin, Kayastha, SC, Vaishya\n- Areas: Rajajipuram (waterlogging), Alambagh (vendors), Nishatganj (unemployment), Tulsi Nagar (education), Sadar (healthcare), Aminabad (parking), Naka Hindola (youth unemployment)\n- Lok Sabha MP: Raj Nath Singh BJP\n'+kb+data+'\n\nSTYLE: Sharp political consultant tone. Mix Hindi/Hinglish naturally. Use data. 2-4 paragraphs max.';
 }
 
 function nt(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
@@ -535,13 +603,11 @@ function addBubble(txt,role){
   var c=document.getElementById('chat-msgs');
   var row=document.createElement('div');
   row.className='msg-row '+role;
-  var inner='';
   if(role==='b'){
-    inner='<div class="msg-av">⚡</div><div><div class="bubble b">'+txt.replace(/\n/g,'<br>')+'<div class="btime">'+nt()+'</div></div></div>';
+    row.innerHTML='<div class="msg-av">&#9889;</div><div><div class="bubble b">'+txt.replace(/\n/g,'<br>')+'<div class="btime">'+nt()+'</div></div></div>';
   } else {
-    inner='<div><div class="bubble u">'+txt.replace(/\n/g,'<br>')+'<div class="btime">'+nt()+'</div></div></div>';
+    row.innerHTML='<div><div class="bubble u">'+txt.replace(/\n/g,'<br>')+'<div class="btime">'+nt()+'</div></div></div>';
   }
-  row.innerHTML=inner;
   c.appendChild(row);
   c.scrollTop=c.scrollHeight;
 }
@@ -549,17 +615,21 @@ function addBubble(txt,role){
 function showTyping(){
   var c=document.getElementById('chat-msgs');
   var row=document.createElement('div');
-  row.className='msg-row b';row.id='typ';
-  row.innerHTML='<div class="msg-av">⚡</div><div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
-  c.appendChild(row);c.scrollTop=c.scrollHeight;
+  row.className='msg-row b';
+  row.id='typ';
+  row.innerHTML='<div class="msg-av">&#9889;</div><div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+  c.appendChild(row);
+  c.scrollTop=c.scrollHeight;
 }
 function rmTyping(){var e=document.getElementById('typ');if(e)e.remove();}
 
 async function sendMsg(){
-  if(busy)return;
+  if(busy) return;
   var inp=document.getElementById('chat-in');
-  var txt=inp.value.trim();if(!txt)return;
-  inp.value='';addBubble(txt,'u');
+  var txt=inp.value.trim();
+  if(!txt) return;
+  inp.value='';
+  addBubble(txt,'u');
   chatHist.push({role:'user',content:txt});
   busy=true;
   document.getElementById('chat-st-t').textContent='typing...';
@@ -567,35 +637,38 @@ async function sendMsg(){
   try{
     if(!apiKey) throw new Error('API_KEY_MISSING');
     var rep=await callClaude(buildSys(),txt,chatHist.slice(-10).slice(0,-1));
-    rmTyping();addBubble(rep,'b');
+    rmTyping();
+    addBubble(rep,'b');
     chatHist.push({role:'assistant',content:rep});
-  }catch(e){
+  } catch(e){
     rmTyping();
     if(e.message==='API_KEY_MISSING'){
-      addBubble('API key nahi hai! Upar yellow banner mein Anthropic API key paste karein.\n\nFree key: console.anthropic.com -> API Keys','b');
+      addBubble('API key nahi hai!\n\nYellow banner mein apna Anthropic key paste karein.\nFree key: console.anthropic.com','b');
     } else {
-      addBubble('Error: '+e.message+'\n\nCheck your API key and try again.','b');
+      addBubble('Error: '+e.message,'b');
     }
   }
   busy=false;
-  document.getElementById('chat-st-t').textContent=rows.length?rows.length+' records loaded':'Demo mode';
+  document.getElementById('chat-st-t').textContent=rows.length ? rows.length+' records loaded' : 'Demo mode';
 }
+
 function sc(el){document.getElementById('chat-in').value=el.textContent.trim();sendMsg();}
+
 function clearChat(){
   chatHist=[];
   document.getElementById('chat-msgs').innerHTML='';
-  addBubble('Chat cleared! Kuch bhi poochho. Lucknow West demo data ready hai.','b');
+  addBubble('Chat cleared! Lucknow West demo data ready. Kuch bhi poochho.','b');
 }
 
-// URL FETCHER
 function addUrl(){
   var url=document.getElementById('url-in').value.trim();
   var label=document.getElementById('url-lbl').value.trim()||'Source';
-  if(!url||!url.startsWith('http')){alert('Enter a valid URL starting with http');return;}
+  if(!url || !url.startsWith('http')){alert('Enter a valid URL starting with http');return;}
   document.getElementById('url-in').value='';
   document.getElementById('url-lbl').value='';
   fetchUrl(url,label);
 }
+
 function quickUrl(url,label){fetchUrl(url,label);}
 
 async function fetchUrl(url,label){
@@ -617,18 +690,21 @@ async function fetchUrl(url,label){
     if(apiKey){
       try{
         summary=await callClaude(
-          'Political analyst. Summarise this in 100 words focusing on election data, voter demographics, political issues, constituency intelligence.',
+          'Political analyst. Summarise in 100 words focusing on election data, voter demographics, political issues, constituency intelligence.',
           'URL: '+url+'\nContent: '+text.substring(0,3500)
         );
-      }catch(e){}
+      } catch(e2){}
     }
     knowledgeBase.push({id:id,url:url,label:label,text:text.substring(0,3000),summary:summary,wordCount:text.split(' ').length});
-    var u=urlList.find(function(u){return u.id===id;});if(u)u.status='done';
-    renderUrlList();renderKB();
+    var u=urlList.find(function(u){return u.id===id;});
+    if(u) u.status='done';
+    renderUrlList();
+    renderKB();
     document.getElementById('fetch-st').textContent='Added: "'+label+'" to knowledge base';
     document.getElementById('kb-card').style.display='block';
-  }catch(e){
-    var u=urlList.find(function(u){return u.id===id;});if(u)u.status='fail';
+  } catch(e){
+    var u=urlList.find(function(u){return u.id===id;});
+    if(u) u.status='fail';
     renderUrlList();
     document.getElementById('fetch-st').textContent='Failed: '+e.message;
   }
@@ -636,46 +712,45 @@ async function fetchUrl(url,label){
 
 function renderUrlList(){
   document.getElementById('url-list').innerHTML=urlList.map(function(u){
-    var statusText=u.status==='loading'?'Fetching...':u.status==='done'?'Done':'Failed';
-    return '<div class="url-item">'
-      +'<span class="url-text">'+u.label+' — '+u.url.substring(0,45)+'...</span>'
-      +'<span class="url-status '+u.status+'">'+statusText+'</span>'
-      +'<button class="url-rm" onclick="removeUrl(\''+u.id+'\')">x</button>'
-      +'</div>';
+    var st=u.status==='loading'?'Fetching...':u.status==='done'?'Done':'Failed';
+    return '<div class="url-item"><span class="url-text">'+u.label+' &mdash; '+u.url.substring(0,40)+'...</span><span class="url-status '+u.status+'">'+st+'</span><button class="url-rm" onclick="removeUrl(\''+u.id+'\')">&#215;</button></div>';
   }).join('');
 }
+
 function removeUrl(id){
   urlList=urlList.filter(function(u){return u.id!==id;});
   knowledgeBase=knowledgeBase.filter(function(k){return k.id!==id;});
-  renderUrlList();renderKB();
+  renderUrlList();
+  renderKB();
   if(!knowledgeBase.length) document.getElementById('kb-card').style.display='none';
 }
+
 function renderKB(){
   document.getElementById('kb-count').textContent=knowledgeBase.length+' sources';
   document.getElementById('kb-list').innerHTML=knowledgeBase.map(function(k){
-    return '<div class="kb-item">'
-      +'<div class="kb-title">'+k.label+'</div>'
-      +'<div class="kb-meta">'+k.wordCount+' words extracted</div>'
-      +'<div class="kb-preview">'+k.summary+'</div>'
-      +'</div>';
+    return '<div class="kb-item"><div class="kb-title">'+k.label+'</div><div class="kb-meta">'+k.wordCount+' words extracted</div><div class="kb-preview">'+k.summary+'</div></div>';
   }).join('');
 }
+
 async function analyseKB(){
   if(!knowledgeBase.length){alert('Add some URLs first');return;}
   if(!apiKey){alert('Add API key first');return;}
-  var btn=event.target;btn.disabled=true;btn.textContent='Analysing...';
+  var btn=event.target;
+  btn.disabled=true;btn.textContent='Analysing...';
   try{
     var content=knowledgeBase.map(function(k){return '['+k.label+']: '+k.text;}).join('\n\n---\n\n');
     var rep=await callClaude(
-      'Political intelligence analyst for Lucknow West. Analyse all sources. Create a comprehensive brief: key issues, voter demographics, political dynamics, opportunities, risks.',
+      'Political intelligence analyst for Lucknow West. Create a comprehensive brief: key issues, voter demographics, political dynamics, opportunities, risks.',
       'Analyse '+knowledgeBase.length+' sources:\n\n'+content.substring(0,5000)
     );
-    var el=document.getElementById('kb-analysis');el.textContent=rep;el.style.display='block';
-  }catch(e){alert('Error: '+e.message);}
-  btn.disabled=false;btn.textContent='Analyse All with AI';
+    var el=document.getElementById('kb-analysis');
+    el.textContent=rep;
+    el.style.display='block';
+  } catch(e){alert('Error: '+e.message);}
+  btn.disabled=false;
+  btn.textContent='Analyse All with AI';
 }
 
-// DEMO DATA
 function loadDemo(){
   var areas=[
     {ward:'Ward 1 - Rajajipuram',area:'Rajajipuram',cp:['OBC','OBC','SC','General'],op:['Daily Labour','Shop Owner','Street Vendor','Govt Job'],ip:['Waterlogging','Road Repair','Unemployment','Electricity']},
@@ -685,7 +760,7 @@ function loadDemo(){
     {ward:'Ward 5 - Sadar',area:'Sadar',cp:['Muslim','Muslim','Muslim','OBC'],op:['Shop Owner','Artisan','Daily Labour','Tailor'],ip:['Healthcare','Road Repair','Drainage','Unemployment']},
     {ward:'Ward 6 - Aminabad',area:'Aminabad',cp:['Muslim','Muslim','OBC','Vaishya'],op:['Trader','Shop Owner','Artisan'],ip:['Parking','Electricity','Infrastructure','Traffic']},
     {ward:'Ward 7 - Naka Hindola',area:'Naka Hindola',cp:['OBC','SC','OBC'],op:['Daily Labour','Street Vendor','Rickshaw Puller'],ip:['Unemployment','Security','Roads','Healthcare']},
-    {ward:'Ward 8 - Vikas Nagar',area:'Vikas Nagar',cp:['General','OBC','Brahmin'],op:['Private Job','Govt Job','Business'],ip:['Water Supply','Roads','Education','Parks']},
+    {ward:'Ward 8 - Vikas Nagar',area:'Vikas Nagar',cp:['General','OBC','Brahmin'],op:['Private Job','Govt Job','Business'],ip:['Water Supply','Roads','Education','Parks']}
   ];
   var sbc={
     'Muslim':['Strongly For','Strongly For','Leaning For','Neutral'],
@@ -698,8 +773,8 @@ function loadDemo(){
   };
   var voted=['Yes','Yes','Yes','No','First Time'];
   var income=['Below 5k','5k-10k','10k-20k','20k-50k','Above 50k'];
-  var mn=['Ramesh','Suresh','Mohammad','Akbar','Rajesh','Vijay','Anil','Sanjay','Amit','Ashok','Deepak','Rahul','Santosh','Munna'];
-  var fn=['Sunita','Geeta','Fatima','Rekha','Meera','Asha','Sharda','Nazma','Radha','Anita','Seema','Kavita','Saira','Pooja'];
+  var mn=['Ramesh','Suresh','Mohammad','Akbar','Rajesh','Vijay','Anil','Sanjay','Amit','Ashok','Deepak','Rahul','Santosh','Munna','Bablu'];
+  var fn=['Sunita','Geeta','Fatima','Rekha','Meera','Asha','Sharda','Nazma','Radha','Anita','Seema','Kavita','Saira','Pooja','Rani'];
   var sur=['Kumar','Singh','Khan','Yadav','Gupta','Sharma','Verma','Ansari','Patel','Mishra','Tiwari'];
   var demo=[];
   for(var i=0;i<200;i++){
@@ -725,20 +800,20 @@ function loadDemo(){
       Phone:'98'+Math.floor(10000000+Math.random()*89999999)
     });
   }
-  rows=demo;fields=Object.keys(demo[0]);dataSource='demo';
-  updateUI();renderPreview();renderFieldTags();renderManualForm();
+  rows=demo;
+  fields=Object.keys(demo[0]);
+  dataSource='demo';
+  updateUI();
+  renderPreview();
+  renderFieldTags();
+  renderManualForm();
   document.getElementById('kobo-sync-card').style.display='block';
   document.getElementById('kobo-forms-card').style.display='block';
-  document.getElementById('forms-list').innerHTML=
-    '<div style="padding:8px 10px;background:var(--bg);border-radius:8px;border:1px solid #416FBA30">'
-    +'<div style="font-size:11px;font-weight:600">Demo: Lucknow West Survey 2025</div>'
-    +'<div style="font-size:10px;color:var(--text3)">200 voter profiles across 8 wards</div>'
-    +'</div>';
+  document.getElementById('forms-list').innerHTML='<div style="padding:7px 10px;background:var(--bg);border-radius:7px;border:1px solid #416FBA30"><div style="font-size:11px;font-weight:600">Demo: Lucknow West Survey 2025</div><div style="font-size:10px;color:var(--text3)">200 voter profiles across 8 wards</div></div>';
   addSyncLog('['+nt()+'] Demo loaded: 200 Lucknow West voter profiles');
-  addBubble('Demo data loaded!\n\n200 voter profiles across 8 wards of Lucknow West:\nRajajipuram, Alambagh, Nishatganj, Tulsi Nagar, Sadar, Aminabad, Naka Hindola, Vikas Nagar.\n\nAb poochho kuch bhi — ya upar chips try karo!','b');
+  addBubble('Demo data loaded!\n\n200 voter profiles across 8 wards: Rajajipuram, Alambagh, Nishatganj, Tulsi Nagar, Sadar, Aminabad, Naka Hindola, Vikas Nagar.\n\nAb poochho kuch bhi!','b');
 }
 
-// LUCKNOW PAGE
 function renderLKO(){
   if(communityChart){communityChart.destroy();communityChart=null;}
   var ctx=document.getElementById('community-chart');
@@ -746,89 +821,88 @@ function renderLKO(){
   communityChart=new Chart(ctx.getContext('2d'),{
     type:'doughnut',
     data:{
-      labels:['Muslim (OBC+Gen ~35%)','OBC Hindu (~30%)','Brahmin/Kayastha/Vaishya (~20%)','SC (~12%)','Others (~3%)'],
+      labels:['Muslim 35%','OBC Hindu 30%','Brahmin/Kayastha/Vaishya 20%','SC 12%','Others 3%'],
       datasets:[{data:[35,30,20,12,3],backgroundColor:COLS.map(function(c){return c+'cc';}),borderColor:COLS,borderWidth:2}]
     },
     options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:10},padding:8}}}}
   });
   var issues=[
-    {cat:'Infrastructure',color:'#ef4444',t:'Waterlogging in Rajajipuram — 3rd consecutive monsoon',m:'40,000+ residents affected. Top complaint in Ward 1.'},
-    {cat:'Economy',color:'#f0a500',t:'800 street vendors displaced from Alambagh weekly market',m:'Demand for permanent vending zone. High political resentment.'},
-    {cat:'Metro',color:'#2563eb',t:'Lucknow Metro Phase 2 — Alambagh extension proposed',m:'High public interest. Could shift transport narrative.'},
-    {cat:'Healthcare',color:'#10b981',t:'Primary health centre non-functional in Sadar',m:'Muslim-majority area worst hit. 6+ months without functional PHC.'},
-    {cat:'Education',color:'#7c3aed',t:'60% teacher vacancies in govt schools — Nishatganj',m:'Parents shifting to private schools. Major issue for families.'},
-    {cat:'Employment',color:'#ea580c',t:'55% youth unemployment in Naka Hindola (age 18-25)',m:'OBC and SC youth most affected. High political mobilisation potential.'},
-    {cat:'Governance',color:'#06b6d4',t:'40% of MLA development fund projects incomplete',m:'Key accountability issue for 2027 elections.'},
+    {cat:'Infrastructure',color:'#ef4444',t:'Waterlogging in Rajajipuram — 3rd consecutive monsoon',m:'40,000+ residents affected. Ward 1 top complaint.'},
+    {cat:'Economy',color:'#f0a500',t:'800 street vendors displaced from Alambagh market',m:'Weekly market vendors demand permanent vending zone.'},
+    {cat:'Metro',color:'#2563eb',t:'Lucknow Metro Phase 2 — Alambagh extension proposed',m:'High public interest. Transport game-changer for west Lucknow.'},
+    {cat:'Healthcare',color:'#10b981',t:'Primary health centre non-functional in Sadar',m:'Muslim-majority area worst hit. 6+ months without PHC.'},
+    {cat:'Education',color:'#7c3aed',t:'60% teacher vacancies in govt schools — Nishatganj',m:'Parents shifting to private schools. Major family issue.'},
+    {cat:'Employment',color:'#ea580c',t:'55% youth unemployment in Naka Hindola (18-25 yr)',m:'OBC and SC youth most affected. High political potential.'},
+    {cat:'Governance',color:'#06b6d4',t:'40% of MLA development fund projects incomplete',m:'Key accountability issue for 2027 elections.'}
   ];
   var el=document.getElementById('lko-issues');
   if(el){
     el.innerHTML=issues.map(function(n){
-      return '<div class="news-item">'
-        +'<div class="news-cat" style="background:'+n.color+'20;color:'+n.color+'">'+n.cat+'</div>'
-        +'<div class="news-title">'+n.t+'</div>'
-        +'<div class="news-meta">'+n.m+'</div>'
-        +'</div>';
+      return '<div class="news-item"><div class="news-cat" style="background:'+n.color+'20;color:'+n.color+'">'+n.cat+'</div><div class="news-title">'+n.t+'</div><div class="news-meta">'+n.m+'</div></div>';
     }).join('');
   }
 }
 
-// SCORE
 async function calcScore(){
   var btn=document.getElementById('score-btn');
-  btn.disabled=true;btn.textContent='Calculating...';
+  btn.disabled=true;
+  btn.textContent='Calculating...';
   var s=computeScore();
-  var circ=301.59;
+  var circ=289.03;
   var offset=circ-(circ*(s/100));
   var arc=document.getElementById('score-arc');
   arc.style.strokeDashoffset=offset;
-  arc.style.stroke=s>=65?'#10b981':s>=45?'#f0a500':'#ef4444';
+  if(s>=65){ arc.style.stroke='#10b981'; }
+  else if(s>=45){ arc.style.stroke='#f0a500'; }
+  else { arc.style.stroke='#ef4444'; }
   document.getElementById('score-num').textContent=s;
-  var verd=s>=65?'Strong Position':'s>=45?Competitive — Action Required':'Critical';
-  if(s>=65) verd='Strong Position';
-  else if(s>=45) verd='Competitive — Action Required';
-  else verd='Critical — Immediate Action Needed';
+  var verd='';
+  if(s>=65){ verd='Strong Position'; }
+  else if(s>=45){ verd='Competitive - Action Required'; }
+  else { verd='Critical - Immediate Action Needed'; }
   document.getElementById('score-verdict').textContent=verd;
+  document.getElementById('score-explain').textContent=s>=65?'Above winning threshold. Consolidate base, guard swing wards.':s>=45?'Within range but thin margin. 3-4 targeted actions can push you over.':'Significant ground needed. Focus on top issues in swing wards.';
   var factors=[
-    {l:'Voter Support',v:rows.length?Math.round(rows.filter(function(r){return String(r.Support||'').toLowerCase().includes('for');}).length/rows.length*100):38,c:'#10b981'},
-    {l:'Past Turnout',v:rows.length?Math.round(rows.filter(function(r){return String(r.Voted_Last||'').toLowerCase()==='yes';}).length/rows.length*100):65,c:'#2563eb'},
-    {l:'Issue Engagement',v:rows.length?Math.round(rows.filter(function(r){return r.Problem;}).length/rows.length*100):82,c:'#f0a500'},
-    {l:'Name Recognition',v:rows.length?Math.round(rows.filter(function(r){return String(r.Candidate_Awareness||'').toLowerCase().includes('knows');}).length/rows.length*100):42,c:'#7c3aed'},
+    {l:'Voter Support',v:rows.length ? Math.round(rows.filter(function(r){return String(r.Support||'').toLowerCase().indexOf('for')>=0;}).length/rows.length*100) : 38,c:'#10b981'},
+    {l:'Past Turnout',v:rows.length ? Math.round(rows.filter(function(r){return String(r.Voted_Last||'').toLowerCase()==='yes';}).length/rows.length*100) : 65,c:'#2563eb'},
+    {l:'Issue Engagement',v:rows.length ? Math.round(rows.filter(function(r){return r.Problem;}).length/rows.length*100) : 82,c:'#f0a500'},
+    {l:'Name Recognition',v:rows.length ? Math.round(rows.filter(function(r){return String(r.Candidate_Awareness||'').toLowerCase().indexOf('knows')>=0;}).length/rows.length*100) : 42,c:'#7c3aed'},
     {l:'Community Alignment',v:Math.max(s-8,10),c:'#06b6d4'}
   ];
   document.getElementById('score-factors-card').style.display='block';
   document.getElementById('score-factors').innerHTML=factors.map(function(f){
-    return '<div style="margin-bottom:10px">'
-      +'<div style="display:flex;justify-content:space-between;margin-bottom:3px">'
-      +'<span style="font-size:11px;color:var(--text2)">'+f.l+'</span>'
-      +'<span style="font-size:11px;font-weight:700;color:'+f.c+'">'+f.v+'%</span>'
-      +'</div>'
-      +'<div class="prog-wrap"><div class="prog-bar" style="width:'+f.v+'%;background:'+f.c+'"></div></div>'
-      +'</div>';
+    return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:var(--text2)">'+f.l+'</span><span style="font-size:11px;font-weight:700;color:'+f.c+'">'+f.v+'%</span></div><div class="prog-wrap"><div class="prog-bar" style="width:'+f.v+'%;background:'+f.c+'"></div></div></div>';
   }).join('');
   if(apiKey){
     try{
-      var rep=await callClaude(buildSys(),'Popularity score is '+s+'/100 for Lucknow West. Give a 3-paragraph sharp analysis: what this means, what drives it, and 2 immediate actions. Be specific to this constituency.');
-      var el=document.getElementById('score-ai');el.textContent=rep;el.style.display='block';
-    }catch(e){}
+      var rep=await callClaude(buildSys(),'Popularity score is '+s+'/100. Give a sharp 3-paragraph analysis: what this means for Lucknow West, what is driving it, and 2 immediate actions. Be specific.');
+      var el=document.getElementById('score-ai');
+      el.textContent=rep;
+      el.style.display='block';
+    } catch(e2){}
   }
-  btn.disabled=false;btn.textContent='Recalculate';
+  btn.disabled=false;
+  btn.textContent='Recalculate';
 }
+
 function computeScore(){
   if(!rows.length) return 54;
   var tot=rows.length;
-  var forV=rows.filter(function(r){var s=String(r.Support||'').toLowerCase();return s.includes('for')||s.includes('strong');}).length;
+  var forV=rows.filter(function(r){var s=String(r.Support||'').toLowerCase();return s.indexOf('for')>=0||s.indexOf('strong')>=0;}).length;
   var voted=rows.filter(function(r){return String(r.Voted_Last||'').toLowerCase()==='yes';}).length;
-  var aware=rows.filter(function(r){return String(r.Candidate_Awareness||'').toLowerCase().includes('knows');}).length;
+  var aware=rows.filter(function(r){return String(r.Candidate_Awareness||'').toLowerCase().indexOf('knows')>=0;}).length;
   return Math.min(Math.max(Math.round((forV/tot*40)+(voted/tot*25)+(aware/tot*20)+13),18),94);
 }
 
 async function getActions(){
   if(!apiKey){alert('Add your API key first (yellow banner at top)');return;}
-  var btn=document.getElementById('actions-btn');btn.disabled=true;btn.textContent='Generating...';
-  var ctx=rows.length?'Survey ('+rows.length+' records): '+JSON.stringify(rows.slice(0,6)):'Constituency intelligence only.';
+  var btn=document.getElementById('actions-btn');
+  btn.disabled=true;
+  btn.textContent='Generating...';
+  var ctx=rows.length ? 'Survey ('+rows.length+' records): '+JSON.stringify(rows.slice(0,6)) : 'Using constituency intelligence only.';
   try{
     var rep=await callClaude(buildSys(),
-      'Generate exactly 5 hyperlocal micro-actions for Lucknow West. Format each as:\nACTION 1: [title]\nArea: [specific ward/mohalla]\nTarget: [community/group]\nWhat: [specific action]\nWhy: [reason]\nVotes: [impact estimate]\n\n'+ctx
+      'Generate exactly 5 hyperlocal micro-actions for Lucknow West. Format each as:\nACTION 1: [title]\nArea: [specific ward/mohalla]\nTarget: [community]\nWhat: [action]\nWhy: [reason]\nVotes: [impact]\n\n'+ctx
     );
     var parts=rep.split(/ACTION \d+:/i).filter(function(p){return p.trim();});
     var list=document.getElementById('actions-list');
@@ -837,80 +911,122 @@ async function getActions(){
         var lines=p.trim().split('\n').filter(function(l){return l.trim();});
         var title=lines[0]||('Action '+(i+1));
         var body=lines.slice(1).join('\n');
-        var hi=body.toLowerCase().includes('high')||body.includes('lakh');
-        return '<div class="action-item">'
-          +'<div class="action-top"><div class="action-n">'+(i+1)+'</div><div class="action-title">'+title+'</div></div>'
-          +'<div class="action-body">'+body.replace(/\n/g,'<br>')+'</div>'
-          +'<div class="impact impact-'+(hi?'h':'m')+'">'+(hi?'HIGH IMPACT':'MEDIUM IMPACT')+'</div>'
-          +'</div>';
+        var hi=body.toLowerCase().indexOf('high')>=0||body.indexOf('lakh')>=0;
+        return '<div class="action-item"><div class="action-top"><div class="action-n">'+(i+1)+'</div><div class="action-title">'+title+'</div></div><div class="action-body">'+body.replace(/\n/g,'<br>')+'</div><div class="impact impact-'+(hi?'h':'m')+'">'+(hi?'HIGH IMPACT':'MEDIUM IMPACT')+'</div></div>';
       }).join('');
     } else {
       list.innerHTML='<div class="ai-out">'+rep+'</div>';
     }
-  }catch(e){alert('Error: '+e.message);}
-  btn.disabled=false;btn.textContent='Regenerate';
+  } catch(e){alert('Error: '+e.message);}
+  btn.disabled=false;
+  btn.textContent='Regenerate';
 }
 
 async function predict(){
   if(!apiKey){alert('Add API key first');return;}
-  var cand=document.getElementById('cand').value.trim();if(!cand){alert('Enter candidate name');return;}
+  var cand=document.getElementById('cand').value.trim();
+  if(!cand){alert('Enter candidate name');return;}
   var party=document.getElementById('cparty').value.trim();
-  var btn=document.getElementById('pred-btn');btn.disabled=true;btn.textContent='Predicting...';
+  var btn=document.getElementById('pred-btn');
+  btn.disabled=true;btn.textContent='Predicting...';
   try{
     var rep=await callClaude(buildSys(),
       'Predict for '+cand+(party?' ('+party+')':' Independent')+' in Lucknow West. 5 sections:\n1. VOTE SHARE: specific %\n2. COMMUNITY BREAKDOWN\n3. WARD ANALYSIS\n4. SWING FACTORS\n5. WINNING STRATEGY'
     );
-    var el=document.getElementById('pred-result');el.textContent=rep;el.style.display='block';
-  }catch(e){alert('Error: '+e.message);}
+    var el=document.getElementById('pred-result');
+    el.textContent=rep;
+    el.style.display='block';
+  } catch(e){alert('Error: '+e.message);}
   btn.disabled=false;btn.textContent='Rerun';
 }
 
 async function genScript(){
   if(!apiKey){alert('Add API key first');return;}
-  var cand=document.getElementById('cand').value.trim();if(!cand){alert('Enter candidate name above first');return;}
-  var seg=document.getElementById('seg').value.trim();if(!seg){alert('Enter voter segment');return;}
+  var cand=document.getElementById('cand').value.trim();
+  if(!cand){alert('Enter candidate name above first');return;}
+  var seg=document.getElementById('seg').value.trim();
+  if(!seg){alert('Enter voter segment');return;}
   var party=document.getElementById('cparty').value.trim();
-  var btn=document.getElementById('script-btn');btn.disabled=true;btn.textContent='Writing...';
+  var btn=document.getElementById('script-btn');
+  btn.disabled=true;btn.textContent='Writing...';
   try{
     var rep=await callClaude(
       'Expert Indian campaign writer. Write natural Hinglish phone scripts for Lucknow West voters.',
-      'Write 2-3 min Hinglish call script for volunteer calling '+seg+' voters in Lucknow West for '+cand+(party?' ('+party+')':'')+'. Include: warm intro, reference their area issue, candidate promise, handle 1 objection, ask for support, polite close. Make it human, not scripted.'
+      'Write 2-3 min Hinglish call script for volunteer calling '+seg+' voters in Lucknow West for '+cand+(party?' ('+party+')':'')+'. Include: warm intro, reference their area issue, candidate promise, handle 1 objection, ask for support, polite close. Human and personal, not scripted.'
     );
-    var el=document.getElementById('script-result');el.textContent=rep;el.style.display='block';
-  }catch(e){alert('Error: '+e.message);}
+    var el=document.getElementById('script-result');
+    el.textContent=rep;
+    el.style.display='block';
+  } catch(e){alert('Error: '+e.message);}
   btn.disabled=false;btn.textContent='New Script';
 }
 
-// KOBO
+async function genIVRSDemo(){
+  if(!apiKey){alert('Add API key first');return;}
+  var voter=document.getElementById('ivrs-voter').value.trim()||'Ramesh Yadav, Ward 1 Rajajipuram, OBC, primary issue: waterlogging';
+  var cand=document.getElementById('ivrs-cand').value.trim()||'Candidate';
+  var btn=document.getElementById('ivrs-gen-btn');
+  btn.disabled=true;btn.textContent='Generating...';
+  try{
+    var rep=await callClaude(
+      'You are simulating a real IVRS AI phone call for Lucknow West constituency. Create a realistic back-and-forth conversation transcript between the AI (calling on behalf of the candidate) and the voter. The AI knows everything about the voter from the survey data. Make it 6-8 exchanges. Use Hinglish naturally. Show how AI handles objections and personalises based on the voter profile.',
+      'Generate a realistic IVRS call transcript.\nVoter profile: '+voter+'\nCalling on behalf of: '+cand+'\nConstituency: Lucknow West\n\nFormat as:\nAI: [what AI says]\nVoter: [realistic voter response]\n...\n\nShow the AI referencing the voter name, ward, specific issue, and candidate promise for that area.'
+    );
+    var el=document.getElementById('ivrs-output');
+    el.innerHTML='';
+    var lines=rep.split('\n').filter(function(l){return l.trim();});
+    lines.forEach(function(line){
+      var div=document.createElement('div');
+      div.className='ivrs-line';
+      if(line.startsWith('AI:')){
+        div.innerHTML='<span style="color:var(--blue);font-weight:600">AI: </span>'+line.substring(3);
+      } else if(line.startsWith('Voter:')){
+        div.innerHTML='<span style="color:var(--green);font-weight:600">Voter: </span>'+line.substring(6);
+      } else {
+        div.innerHTML='<span style="color:var(--text3)">'+line+'</span>';
+      }
+      el.appendChild(div);
+    });
+    el.style.display='block';
+  } catch(e){alert('Error: '+e.message);}
+  btn.disabled=false;btn.textContent='Generate Demo Call';
+}
+
 function tp(id){var e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
+
 async function koboConnect(){
   var tok=document.getElementById('kobo-tok').value.trim();
   if(!tok){setKSt('Enter token first','err');return;}
   koboTok=tok;koboSrv=document.getElementById('kobo-srv').value;
-  var btn=document.getElementById('kobo-btn');btn.disabled=true;btn.textContent='Connecting...';
+  var btn=document.getElementById('kobo-btn');
+  btn.disabled=true;btn.textContent='Connecting...';
   setKSt('Connecting...','');
   try{
     var r=await fetch(koboSrv+'/api/v2/assets/?format=json',{headers:{'Authorization':'Token '+tok}});
-    if(!r.ok) throw new Error('HTTP '+r.status+' — check your token');
+    if(!r.ok) throw new Error('HTTP '+r.status+' - check your token');
     var d=await r.json();
     var forms=(d.results||[]).filter(function(a){return a.asset_type==='survey';});
     if(!forms.length) throw new Error('No surveys found on this account');
     document.getElementById('kobo-forms-card').style.display='block';
     document.getElementById('forms-list').innerHTML=forms.map(function(f){
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:8px;margin-bottom:5px;border:1px solid var(--border)">'
-        +'<div><div style="font-size:11px;font-weight:600">'+f.name+'</div>'
-        +'<div style="font-size:10px;color:var(--text3)">'+(f.deployment__submission_count||0)+' submissions</div></div>'
-        +'<button class="btn btn-blue" style="padding:5px 10px;font-size:11px" onclick="koboSel(\''+f.uid+'\',\''+f.name.replace(/'/g,'')+'\')">Load</button>'
-        +'</div>';
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:7px;margin-bottom:5px;border:1px solid var(--border)"><div><div style="font-size:11px;font-weight:600">'+f.name+'</div><div style="font-size:10px;color:var(--text3)">'+(f.deployment__submission_count||0)+' submissions</div></div><button class="btn btn-blue btn-sm" onclick="koboSel(\''+f.uid+'\',\''+f.name.replace(/'/g,'')+'\')">Load</button></div>';
     }).join('');
     setKSt('Connected! '+forms.length+' survey(s) found.','ok');
-  }catch(e){setKSt('Failed: '+e.message+'. Try Demo Data button.','err');}
+  } catch(e){setKSt('Failed: '+e.message+'. Try Demo Data.','err');}
   btn.disabled=false;btn.textContent='Connect';
 }
-async function koboSel(uid,name){koboAsset=uid;document.getElementById('kobo-sync-card').style.display='block';addSyncLog('Loading: '+name+'...');await koboSync();}
+
+async function koboSel(uid,name){
+  koboAsset=uid;
+  document.getElementById('kobo-sync-card').style.display='block';
+  addSyncLog('Loading: '+name+'...');
+  await koboSync();
+}
+
 async function koboSync(){
   if(!koboAsset||!koboTok){addSyncLog('No form selected');return;}
-  var btn=document.getElementById('ksync-btn');btn.disabled=true;btn.textContent='Syncing...';
+  var btn=document.getElementById('ksync-btn');
+  btn.disabled=true;btn.textContent='Syncing...';
   addSyncLog('['+nt()+'] Starting sync...');
   try{
     var r=await fetch(koboSrv+'/api/v2/assets/'+koboAsset+'/data/?format=json',{headers:{'Authorization':'Token '+koboTok}});
@@ -920,8 +1036,7 @@ async function koboSync(){
       var c={};
       Object.keys(row).forEach(function(k){
         if(!k.startsWith('_')&&!k.startsWith('meta/')){
-          var clean=k.includes('/')?k.split('/').pop():k;
-          c[clean]=row[k];
+          c[k.indexOf('/')>=0?k.split('/').pop():k]=row[k];
         }
       });
       return c;
@@ -931,16 +1046,17 @@ async function koboSync(){
     document.getElementById('last-sync').textContent='Last: '+nt();
     addBubble('KoboToolbox sync done! '+rows.length+' records loaded.','b');
     go('chat');
-  }catch(e){addSyncLog('['+nt()+'] Error: '+e.message);}
+  } catch(e){addSyncLog('['+nt()+'] Error: '+e.message);}
   btn.disabled=false;btn.textContent='Sync Now';
 }
+
 function addSyncLog(msg){var l=document.getElementById('sync-log');l.style.display='block';l.textContent+=(l.textContent?'\n':'')+msg;l.scrollTop=l.scrollHeight;}
 function setKSt(msg,t){var e=document.getElementById('kobo-st');e.textContent=msg;e.className=t==='ok'?'ok':t==='err'?'err':'info';}
 function toggleAS(){autoSync=!autoSync;document.getElementById('as-tog').classList.toggle('on',autoSync);if(autoSync){asInterval=setInterval(koboSync,5*60*1000);addSyncLog('['+nt()+'] Auto-sync ON');}else{clearInterval(asInterval);addSyncLog('['+nt()+'] Auto-sync OFF');}}
 
-// FILE UPLOAD
 function handleFile(e){
-  var file=e.target.files[0];if(!file)return;
+  var file=e.target.files[0];
+  if(!file) return;
   var reader=new FileReader();
   reader.onload=function(ev){
     try{
@@ -951,35 +1067,46 @@ function handleFile(e){
         fields=Object.keys(data[0]);rows=data;dataSource='file';
         setSt('file-st','Loaded '+data.length+' records from '+file.name,'ok');
         markSrc('file');updateUI();renderFieldTags();renderManualForm();renderPreview();
-        addBubble('File loaded! '+data.length+' records ready. Kuch bhi poochho.','b');
+        addBubble('File loaded! '+data.length+' records ready.','b');
         go('chat');
       }
-    }catch(err){setSt('file-st','Could not parse file. Try .xlsx or .csv','err');}
+    } catch(err){setSt('file-st','Could not parse file. Try .xlsx or .csv','err');}
   };
   reader.readAsBinaryString(file);
 }
+
 function setSt(id,msg,t){var e=document.getElementById(id);if(e){e.textContent=msg;e.className=t==='ok'?'ok':'err';}}
+
 function updateUI(){
-  document.getElementById('data-pill').textContent=rows.length?rows.length+' records':'No data';
-  document.getElementById('chat-st-t').textContent=rows.length?rows.length+' records loaded':'Demo mode';
-  var rb=document.getElementById('rec-badge');rb.textContent=rows.length+' records';rb.style.display=rows.length?'inline':'none';
+  document.getElementById('data-pill').textContent=rows.length ? rows.length+' records' : 'No data';
+  document.getElementById('chat-st-t').textContent=rows.length ? rows.length+' records loaded' : 'Demo mode';
+  var rb=document.getElementById('rec-badge');
+  rb.textContent=rows.length+' records';
+  rb.style.display=rows.length?'inline':'none';
 }
+
 function markSrc(src){
   var labels={kobo:'KoboToolbox',file:'File Upload',demo:'LKO West Demo'};
-  var b=document.getElementById('src-badge');b.textContent=labels[src]||src;b.style.display='inline';
+  var b=document.getElementById('src-badge');
+  b.textContent=labels[src]||src;
+  b.style.display='inline';
 }
+
 function renderFieldTags(){
   document.getElementById('field-tags').innerHTML=fields.map(function(f){return '<span class="tag tag-blue">'+f.replace(/_/g,' ')+'</span>';}).join('');
 }
+
 function addField(){
   var v=document.getElementById('new-field').value.trim();
-  if(v&&!fields.includes(v)){fields.push(v);renderFieldTags();renderManualForm();document.getElementById('new-field').value='';}
+  if(v && !fields.includes(v)){fields.push(v);renderFieldTags();renderManualForm();document.getElementById('new-field').value='';}
 }
+
 function renderManualForm(){
   document.getElementById('manual-form').innerHTML=fields.map(function(f){
     return '<div><div class="lbl">'+f.replace(/_/g,' ')+'</div><input id="mf-'+f+'" placeholder="'+f.replace(/_/g,' ')+'"/></div>';
   }).join('');
 }
+
 function addManualRow(){
   var row={};
   fields.forEach(function(f){var e=document.getElementById('mf-'+f);row[f]=e?e.value:'';});
@@ -988,8 +1115,9 @@ function addManualRow(){
   setSt('manual-st','Added. Total: '+rows.length,'ok');
   updateUI();renderPreview();
 }
+
 function renderPreview(){
-  if(!rows.length)return;
+  if(!rows.length) return;
   document.getElementById('preview-card').style.display='block';
   document.getElementById('preview-title').textContent='Preview ('+rows.length+' records)';
   var cols=Object.keys(rows[0]);
@@ -999,48 +1127,52 @@ function renderPreview(){
   document.getElementById('preview-more').textContent=rows.length>7?'+'+(rows.length-7)+' more rows':'';
 }
 
-// VISUALISE
 function refreshVis(){
   if(!rows.length){
     document.getElementById('stat-row').innerHTML='<div class="stat-card"><div class="stat-v">0</div><div class="stat-l">Load data first</div></div>';
     return;
   }
-  var wards=[];rows.forEach(function(r){var w=r.Ward||r.ward||'Unknown';if(wards.indexOf(w)<0)wards.push(w);});
+  var wards=[];
+  rows.forEach(function(r){var w=r.Ward||r.ward||'Unknown';if(wards.indexOf(w)<0)wards.push(w);});
   document.getElementById('stat-row').innerHTML=[{v:rows.length,l:'Records'},{v:fields.length,l:'Fields'},{v:wards.length,l:'Wards'}].map(function(s){
     return '<div class="stat-card"><div class="stat-v">'+s.v+'</div><div class="stat-l">'+s.l+'</div></div>';
   }).join('');
   document.getElementById('chart-field').innerHTML=fields.map(function(f){return '<option value="'+f+'">'+f.replace(/_/g,' ')+'</option>';}).join('');
   renderChart();
 }
+
 function countBy(key){
-  var m={};rows.forEach(function(r){var v=String(r[key]||'Unknown');m[v]=(m[v]||0)+1;});
+  var m={};
+  rows.forEach(function(r){var v=String(r[key]||'Unknown');m[v]=(m[v]||0)+1;});
   return Object.entries(m).map(function(e){return {name:e[0],value:e[1]};}).sort(function(a,b){return b.value-a.value;});
 }
+
 function renderChart(){
-  if(!rows.length)return;
+  if(!rows.length) return;
   var field=document.getElementById('chart-field').value;
   var type=document.getElementById('chart-type').value;
   var data=countBy(field);
   if(chartInst){chartInst.destroy();chartInst=null;}
   chartInst=new Chart(document.getElementById('main-chart').getContext('2d'),{
     type:type,
-    data:{labels:data.map(function(d){return d.name;}),datasets:[{data:data.map(function(d){return d.value;}),backgroundColor:COLS.map(function(c){return c+'cc';}),borderColor:COLS,borderWidth:1,borderRadius:type==='bar'?4:0}]},
-    options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:10}}},tooltip:{callbacks:{label:function(ctx){return ctx.raw+' ('+(ctx.raw/rows.length*100).toFixed(1)+'%)';  }}}},
-      scales:type==='bar'?{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e3a5f25'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e3a5f25'}}}:{}}
+    data:{
+      labels:data.map(function(d){return d.name;}),
+      datasets:[{data:data.map(function(d){return d.value;}),backgroundColor:COLS.map(function(c){return c+'cc';}),borderColor:COLS,borderWidth:1,borderRadius:type==='bar'?4:0}]
+    },
+    options:{responsive:true,
+      plugins:{
+        legend:{labels:{color:'#94a3b8',font:{size:10}}},
+        tooltip:{callbacks:{label:function(ctx){return ctx.raw+' ('+(ctx.raw/rows.length*100).toFixed(1)+'%)';}}}
+      },
+      scales:type==='bar'?{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e3a5f25'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e3a5f25'}}}:{}
+    }
   });
   document.getElementById('bd-title').textContent='Breakdown: '+field.replace(/_/g,' ');
   document.getElementById('bd-list').innerHTML=data.slice(0,12).map(function(d,i){
-    return '<div style="margin-bottom:8px">'
-      +'<div style="display:flex;justify-content:space-between;margin-bottom:2px">'
-      +'<span style="font-size:11px;color:var(--text2)">'+d.name+'</span>'
-      +'<span style="font-size:11px;font-weight:700;color:'+COLS[i%COLS.length]+'">'+d.value+' ('+(d.value/rows.length*100).toFixed(1)+'%)</span>'
-      +'</div>'
-      +'<div class="prog-wrap"><div class="prog-bar" style="width:'+(d.value/rows.length*100)+'%;background:'+COLS[i%COLS.length]+'"></div></div>'
-      +'</div>';
+    return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:11px;color:var(--text2)">'+d.name+'</span><span style="font-size:11px;font-weight:700;color:'+COLS[i%COLS.length]+'">'+d.value+' ('+(d.value/rows.length*100).toFixed(1)+'%)</span></div><div class="prog-wrap"><div class="prog-bar" style="width:'+(d.value/rows.length*100)+'%;background:'+COLS[i%COLS.length]+'"></div></div></div>';
   }).join('');
 }
 
-// INIT
 window.onload=function(){
   loadKey();
   renderFieldTags();
