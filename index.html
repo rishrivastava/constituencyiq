@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<meta name="description" content="ConstituencyIQ - AI Political Intelligence Platform for Indian Elections"/>
-<title>ConstituencyIQ - Political Intelligence</title>
+<title>ConstituencyIQ - Political Intelligence Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
 <style>
-
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
   --bg:#060b14;--s1:#0d1421;--s2:#111d2e;--s3:#162033;
@@ -17,55 +18,89 @@
   --gold:#f0a500;--blue:#2563eb;--cyan:#06b6d4;
   --green:#10b981;--red:#ef4444;--purple:#7c3aed;
   --text:#e8f0fe;--text2:#94a3b8;--text3:#64748b;
-  --font:'Outfit',sans-serif;
+  --font:"Outfit",sans-serif;
 }
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);overflow:hidden}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.3}}
-.shell{display:flex;height:100vh;overflow:hidden}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#060b14,#0d1a2e);display:flex;align-items:center;justify-content:center;z-index:1000}
+.login-box{background:var(--s2);border:1px solid var(--border);border-radius:16px;padding:40px 36px;width:100%;max-width:420px;margin:20px;box-shadow:0 25px 60px #00000060}
+.login-icon{width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,var(--gold),#e09000);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#000;margin:0 auto 12px}
+.login-title{font-size:22px;font-weight:800;color:var(--text);text-align:center}
+.login-sub{font-size:12px;color:var(--text3);margin-top:3px;margin-bottom:24px;text-align:center}
+.form-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;display:block}
+.form-input{background:var(--bg);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;outline:none;font-family:var(--font);transition:border .2s;width:100%;margin-bottom:14px}
+.form-input:focus{border-color:#f0a50060}
+.login-btn{background:linear-gradient(135deg,var(--gold),#e09000);color:#000;border:none;border-radius:8px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;font-family:var(--font);width:100%;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-btn:hover{filter:brightness(1.08)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed}
+.login-error{color:var(--red);font-size:12px;text-align:center;padding:8px;background:#ef444415;border-radius:6px;margin-bottom:10px;display:none}
+.spinner{width:16px;height:16px;border:2px solid #00000030;border-top-color:#000;border-radius:50%;animation:spin .7s linear infinite}
+
+/* SHELL */
+.shell{display:flex;height:100vh;overflow:hidden;display:none}
+.shell.active{display:flex}
 .sidebar{width:210px;min-width:190px;background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.sb-logo-wrap{padding:16px 14px 12px;border-bottom:1px solid var(--border);background:linear-gradient(160deg,#0d1f3c,#0d1421)}
+
+/* SIDEBAR */
+.sb-head{padding:16px 14px 12px;border-bottom:1px solid var(--border);background:linear-gradient(160deg,#0d1f3c,#0d1421)}
 .sb-brand{display:flex;align-items:center;gap:7px;margin-bottom:3px}
 .sb-icon{width:24px;height:24px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#e09000);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#000}
 .sb-name{font-size:14px;font-weight:800;color:var(--text)}
 .sb-tag{font-size:9px;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;padding-left:31px}
+.sb-user{padding:8px 12px;border-bottom:1px solid var(--border)}
+.sb-uname{font-size:11px;font-weight:600;color:var(--text)}
+.sb-urole{font-size:10px;color:var(--gold);text-transform:capitalize;margin-top:1px}
 .sb-scroll{flex:1;overflow-y:auto;padding:7px 5px}
 .sb-group{font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);padding:9px 9px 3px}
 .nav-item{display:flex;align-items:center;gap:7px;padding:8px 9px;border-radius:7px;cursor:pointer;margin-bottom:1px;transition:all .15s;font-size:12px;font-weight:500;color:var(--text3);border:none;background:transparent;width:100%;text-align:left;font-family:var(--font)}
 .nav-item:hover{background:var(--s3);color:var(--text)}
 .nav-item.on{background:linear-gradient(135deg,#f0a50014,#f0a50007);color:var(--gold);border-left:2px solid var(--gold);border-radius:0 7px 7px 0;padding-left:7px}
+.nav-item.hide{display:none}
 .nav-ic{font-size:13px;width:16px;text-align:center;flex-shrink:0}
 .sb-bot{padding:9px 11px;border-top:1px solid var(--border)}
-.st-pill{display:flex;align-items:center;gap:6px;padding:6px 9px;background:var(--s2);border:1px solid var(--border);border-radius:7px;font-size:10px;color:var(--text2);font-weight:500}
-.st-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
-.st-dot.live{background:var(--green);animation:pulse2 2s infinite}
+.logout-btn{width:100%;background:var(--s3);border:1px solid var(--border);border-radius:7px;padding:7px;color:var(--text3);font-size:11px;cursor:pointer;font-family:var(--font);transition:all .2s;text-align:center}
+.logout-btn:hover{background:#ef444420;color:var(--red);border-color:#ef444440}
+.dp{font-size:10px;color:var(--text3);text-align:center;margin-top:5px}
+
+/* TOPBAR */
 .topbar{background:var(--s1);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .tb-title{font-size:14px;font-weight:700;color:var(--text)}
 .tb-sub{font-size:10px;color:var(--text3);margin-top:1px}
 .tb-right{margin-left:auto;display:flex;gap:5px;align-items:center}
 .badge{font-size:9px;font-weight:700;padding:3px 7px;border-radius:14px;letter-spacing:.5px;text-transform:uppercase}
-.badge-gold{background:#f0a50016;color:var(--gold);border:1px solid #f0a50022}
-.badge-green{background:#10b98116;color:var(--green);border:1px solid #10b98122}
-.badge-blue{background:#2563eb16;color:var(--cyan);border:1px solid #2563eb22}
-.api-banner{background:linear-gradient(135deg,#7c320010,#f0a50007);border-bottom:1px solid #f0a50022;padding:8px 18px;display:flex;align-items:center;gap:9px;flex-shrink:0}
-.api-banner.hidden{display:none!important}
-.api-input{flex:1;max-width:320px;background:#0d1421;border:1px solid #f0a50030;border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--font)}
+.bg{background:#f0a50016;color:var(--gold);border:1px solid #f0a50022}
+.bb{background:#2563eb16;color:var(--cyan);border:1px solid #2563eb22}
+.br{background:#ef444416;color:var(--red);border:1px solid #ef444422}
+.bgn{background:#10b98116;color:var(--green);border:1px solid #10b98122}
+
+/* PANELS */
 .panel{flex:1;overflow-y:auto;padding:16px;display:none;animation:fadeUp .3s ease}
 .panel.on{display:block}
 .chat-wrap{flex:1;display:none;flex-direction:column;overflow:hidden}
 .chat-wrap.on{display:flex}
+
+/* CARDS */
 .card{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:15px;margin-bottom:11px}
-.card-title{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:9px}
-.card-sub{font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:9px}
-input:not(.api-input):not(.chat-in),select{background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--font);width:100%;transition:border .2s}
-input:focus,select:focus{border-color:#f0a50040}
-select option{background:var(--s2)}
-.lbl{font-size:10px;color:var(--text3);margin-bottom:3px;font-weight:600;letter-spacing:.3px;text-transform:uppercase}
+.ct{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:9px}
+.cs{font-size:11px;color:var(--text3);line-height:1.6;margin-bottom:9px}
+
+/* FORMS */
+input:not(.form-input):not(.ci),select,textarea{background:var(--bg);border:1px solid var(--border2);border-radius:6px;padding:7px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--font);width:100%;transition:border .2s}
+input:not(.form-input):not(.ci):focus,select:focus{border-color:#f0a50040}
+textarea{resize:vertical;min-height:70px}
+.lbl{font-size:10px;color:var(--text3);margin-bottom:3px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;display:block}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
 .row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+
+/* BUTTONS */
 .btn{border:none;border-radius:6px;padding:7px 14px;font-weight:600;font-size:12px;cursor:pointer;font-family:var(--font);transition:all .15s;display:inline-flex;align-items:center;gap:5px}
 .btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
 .btn:active{transform:scale(.97)}
@@ -76,16 +111,13 @@ select option{background:var(--s2)}
 .btn-red{background:var(--red);color:#fff}
 .btn-dim{background:var(--s3);color:var(--text2);border:1px solid var(--border)}
 .btn-sm{padding:5px 10px;font-size:11px}
-.tag{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;margin:2px}
-.tag-blue{background:#2563eb12;color:var(--cyan);border:1px solid #2563eb1f}
-.tag-green{background:#10b98112;color:var(--green);border:1px solid #10b9811f}
-.tag-gold{background:#f0a50012;color:var(--gold);border:1px solid #f0a5001f}
-.tag-red{background:#ef444412;color:var(--red);border:1px solid #ef44441f}
+
+/* AI OUTPUT */
 .ai-out{background:var(--bg);border:1px solid #2563eb1f;border-radius:9px;padding:12px;margin-top:9px;font-size:12px;line-height:1.85;color:var(--text2);white-space:pre-wrap;animation:fadeUp .4s ease}
-.ai-out.gn{border-color:#10b9811f}
 .ok{color:var(--green);font-size:11px;margin-top:5px}
 .err{color:var(--red);font-size:11px;margin-top:5px}
-.info{color:var(--text3);font-size:11px;margin-top:5px}
+
+/* SCORE */
 .score-ring{position:relative;width:110px;height:110px;flex-shrink:0}
 .score-ring svg{transform:rotate(-90deg);overflow:visible}
 circle.track{fill:none;stroke:var(--s3);stroke-width:10}
@@ -93,107 +125,134 @@ circle.fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-das
 .score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .score-num{font-size:26px;font-weight:900;color:var(--gold);line-height:1}
 .score-lbl{font-size:9px;color:var(--text3);margin-top:1px}
+
+/* STATS */
 .stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:11px}
 .stat-card{background:var(--s2);border:1px solid var(--border);border-radius:9px;padding:12px;position:relative;overflow:hidden}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
+.stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent)}
 .stat-v{font-size:20px;font-weight:800;color:var(--gold);line-height:1}
 .stat-l{font-size:10px;color:var(--text3);margin-top:2px}
-.prog-wrap{height:5px;border-radius:3px;background:var(--s3);overflow:hidden;margin-top:3px}
-.prog-bar{height:5px;border-radius:3px;transition:width 1s ease}
-.tbl-wrap{overflow-x:auto;border-radius:9px;border:1px solid var(--border)}
+
+/* PROGRESS */
+.pw{height:5px;border-radius:3px;background:var(--s3);overflow:hidden;margin-top:3px}
+.pb{height:5px;border-radius:3px;transition:width 1s ease}
+
+/* TABLE */
+.tw{overflow-x:auto;border-radius:9px;border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;font-size:11px}
 th{padding:7px 10px;background:var(--bg);color:var(--gold);text-align:left;border-bottom:1px solid var(--border);font-size:9px;text-transform:uppercase;letter-spacing:.5px;font-weight:700}
 td{padding:6px 10px;border-bottom:1px solid #1e3a5f35;color:var(--text2)}
 tr:hover td{background:var(--s3)35}
-.action-item{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:7px;transition:border .2s}
-.action-item:hover{border-color:#f0a50022}
-.action-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
-.action-n{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#e09000);color:#000;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.action-title{font-size:12px;font-weight:700;color:var(--text);line-height:1.35}
-.action-body{font-size:11px;color:var(--text3);line-height:1.6;padding-left:28px}
-.impact{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;margin-top:5px;margin-left:28px}
-.impact-h{background:#10b98112;color:var(--green);border:1px solid #10b98122}
-.impact-m{background:#f0a50012;color:var(--gold);border:1px solid #f0a50022}
-.intel-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px}
-.intel-card{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px}
-.intel-label{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
-.intel-val{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px}
-.intel-sub{font-size:10px;color:var(--text3);line-height:1.4}
-.chat-topbar{padding:10px 15px;background:linear-gradient(135deg,#0a4a3a,#0d3d31);border-bottom:1px solid #0f6b5c;display:flex;align-items:center;gap:8px;flex-shrink:0}
-.chat-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#e09000);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
-.chat-nm{font-size:12px;font-weight:700;color:#fff}
-.chat-st-t{font-size:9px;color:#4ade8065;margin-top:1px}
+
+/* ACTION CARDS */
+.ac{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:7px;transition:border .2s}
+.ac:hover{border-color:#f0a50022}
+.an{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#e09000);color:#000;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.atitle{font-size:12px;font-weight:700;color:var(--text);line-height:1.35}
+.abody{font-size:11px;color:var(--text3);line-height:1.6;padding-left:28px}
+.imp{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 7px;border-radius:8px;margin-top:5px;margin-left:28px}
+.imp-h{background:#10b98112;color:var(--green);border:1px solid #10b98122}
+.imp-m{background:#f0a50012;color:var(--gold);border:1px solid #f0a50022}
+
+/* INTEL */
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px}
+.ic{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px}
+.il{font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text3);margin-bottom:4px}
+.iv{font-size:14px;font-weight:800;color:var(--text);margin-bottom:2px}
+.is{font-size:10px;color:var(--text3);line-height:1.4}
+
+/* CHAT */
+.chat-head{padding:10px 15px;background:linear-gradient(135deg,#0a4a3a,#0d3d31);border-bottom:1px solid #0f6b5c;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.cav{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#e09000);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.cnm{font-size:12px;font-weight:700;color:#fff}
+.cst{font-size:9px;color:#4ade8065;margin-top:1px}
 .chat-msgs{flex:1;overflow-y:auto;padding:12px 14px;background:linear-gradient(180deg,#060c14,#080e18)}
-.msg-row{display:flex;margin-bottom:8px;align-items:flex-end;gap:5px}
-.msg-row.u{justify-content:flex-end}
-.msg-row.b{justify-content:flex-start}
-.msg-av{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#0a4a3a,#128C7E);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
-.bubble{max-width:78%;padding:8px 12px;border-radius:11px;font-size:12.5px;line-height:1.6}
-.bubble.u{background:linear-gradient(135deg,#004d3d,#005C4B);color:#e9edef;border-radius:11px 11px 3px 11px}
-.bubble.b{background:var(--s2);color:var(--text2);border-radius:11px 11px 11px 3px;border:1px solid var(--border)}
-.btime{font-size:9px;color:#ffffff28;margin-top:2px;text-align:right}
-.bubble.b .btime{text-align:left;color:var(--text3)}
+.mr{display:flex;margin-bottom:8px;align-items:flex-end;gap:5px;animation:fadeUp .25s ease}
+.mr.u{justify-content:flex-end}
+.mr.b{justify-content:flex-start}
+.mav{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#0a4a3a,#128C7E);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+.bub{max-width:78%;padding:8px 12px;border-radius:11px;font-size:12.5px;line-height:1.6}
+.bub.u{background:linear-gradient(135deg,#004d3d,#005C4B);color:#e9edef;border-radius:11px 11px 3px 11px}
+.bub.b{background:var(--s2);color:var(--text2);border-radius:11px 11px 11px 3px;border:1px solid var(--border)}
+.bt{font-size:9px;color:#ffffff28;margin-top:2px;text-align:right}
+.bub.b .bt{text-align:left;color:var(--text3)}
 .typing{display:flex;gap:3px;padding:7px 11px;background:var(--s2);border-radius:11px 11px 11px 3px;border:1px solid var(--border);width:fit-content}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:pulse2 .9s infinite}
 .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
 .chips{padding:7px 12px;background:var(--s1);display:flex;gap:4px;overflow-x:auto;flex-shrink:0;border-top:1px solid var(--border)}
 .chip{background:var(--s3);color:var(--text3);font-size:10px;font-weight:600;padding:5px 9px;border-radius:10px;cursor:pointer;white-space:nowrap;border:1px solid var(--border2);transition:all .15s;flex-shrink:0}
 .chip:hover{background:#f0a50010;color:var(--gold);border-color:#f0a50022}
-.chat-input-row{padding:9px 11px;background:var(--s1);border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;flex-shrink:0}
-.chat-in{flex:1;background:var(--s3);border:1px solid var(--border2);border-radius:18px;padding:8px 13px;color:var(--text);font-size:12.5px;outline:none;font-family:var(--font)}
-.chat-in::placeholder{color:var(--text3)}
-.send-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00a884,#00c49a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:transform .2s;flex-shrink:0}
+.ci-wrap{padding:9px 11px;background:var(--s1);border-top:1px solid var(--border);display:flex;align-items:center;gap:7px;flex-shrink:0}
+.ci{flex:1;background:var(--s3);border:1px solid var(--border2);border-radius:18px;padding:8px 13px;color:var(--text);font-size:12.5px;outline:none;font-family:var(--font)}
+.ci::placeholder{color:var(--text3)}
+.send-btn{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#00a884,#00c49a);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .send-btn:hover{transform:scale(1.08)}
-.url-item{display:flex;align-items:center;gap:7px;padding:7px 9px;background:var(--bg);border:1px solid var(--border);border-radius:7px;margin-bottom:5px;font-size:11px}
-.url-text{flex:1;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.url-status{font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;flex-shrink:0}
-.url-status.done{background:#10b98112;color:var(--green)}
-.url-status.loading{background:#f0a50012;color:var(--gold)}
-.url-status.fail{background:#ef444412;color:var(--red)}
-.url-rm{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:0 2px;line-height:1}
-.url-rm:hover{color:var(--red)}
-.kb-item{padding:9px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;margin-bottom:5px}
-.kb-title{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px}
-.kb-meta{font-size:10px;color:var(--text3)}
-.kb-preview{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.5;overflow:hidden}
-.slog{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px;font-size:10px;font-family:monospace;max-height:90px;overflow-y:auto;margin-top:7px;color:var(--green)}
-.toggle{width:30px;height:16px;background:var(--s3);border-radius:8px;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s;border:1px solid var(--border2)}
-.toggle.on{background:var(--green)}
-.toggle::after{content:'';width:12px;height:12px;background:#fff;border-radius:50%;position:absolute;top:1px;left:1px;transition:left .2s}
-.toggle.on::after{left:15px}
-.news-item{padding:9px 10px;border-bottom:1px solid #1e3a5f30}
-.news-item:last-child{border-bottom:none}
-.news-cat{font-size:9px;font-weight:700;padding:2px 5px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;display:inline-block}
-.news-title{font-size:11px;font-weight:600;color:var(--text);line-height:1.35;margin-bottom:2px}
-.news-meta{font-size:10px;color:var(--text3)}
-.ivrs-convo{background:#0d1421;border:1px solid var(--border);border-radius:9px;padding:13px;margin-top:10px}
+
+/* NEWS */
+.ni{padding:9px 10px;border-bottom:1px solid #1e3a5f30}
+.ni:last-child{border-bottom:none}
+.nc{font-size:9px;font-weight:700;padding:2px 5px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;display:inline-block}
+.nt2{font-size:11px;font-weight:600;color:var(--text);line-height:1.35;margin-bottom:2px}
+.nm{font-size:10px;color:var(--text3)}
+
+/* IVRS */
+.ivrs-box{background:#0d1421;border:1px solid var(--border);border-radius:9px;padding:13px;margin-top:10px}
 .ivrs-line{padding:5px 0;font-size:12px;line-height:1.6;border-bottom:1px solid #1e3a5f25}
 .ivrs-line:last-child{border-bottom:none}
-.roadmap-item{padding:7px 0;border-bottom:1px solid #1e3a5f25;font-size:12px;color:var(--text3)}
-.roadmap-item:last-child{border-bottom:none}
+
+/* SYNC LOG */
+.slog{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px;font-size:10px;font-family:monospace;max-height:90px;overflow-y:auto;margin-top:7px;color:var(--green)}
+
+/* TOGGLE */
+.toggle{width:30px;height:16px;background:var(--s3);border-radius:8px;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s;border:1px solid var(--border2)}
+.toggle.on{background:var(--green)}
+.toggle::after{content:"";width:12px;height:12px;background:#fff;border-radius:50%;position:absolute;top:1px;left:1px;transition:left .2s}
+.toggle.on::after{left:15px}
+
+select option{background:var(--s2)}
 @media(max-width:640px){
   .sidebar{width:46px;min-width:46px}
-  .sb-name,.sb-tag,.nav-lbl,.sb-group,.sb-bot{display:none}
+  .sb-name,.sb-tag,.nav-lbl,.sb-group,.sb-bot,.sb-user{display:none}
   .nav-item{justify-content:center;padding:10px 5px}
   .panel{padding:12px}
   .g3{grid-template-columns:1fr 1fr}
   .stat-row{grid-template-columns:1fr 1fr}
-  .bubble{max-width:87%}
-  .intel-grid{grid-template-columns:1fr}
+  .bub{max-width:87%}
+  .ig{grid-template-columns:1fr}
   .topbar{padding:9px 12px}
-  .api-banner{flex-wrap:wrap;gap:5px;padding:7px 12px}
-  .api-input{max-width:100%;width:100%}
+  .g2{grid-template-columns:1fr}
 }
-
 </style>
 </head>
 <body>
-<div class="shell">
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-icon">C</div>
+    <div class="login-title">ConstituencyIQ</div>
+    <div class="login-sub">Political Intelligence Platform</div>
+    <div class="login-error" id="login-error"></div>
+    <label class="form-label">Email Address</label>
+    <input class="form-input" type="email" id="login-email" placeholder="your@email.com" autocomplete="email"/>
+    <label class="form-label">Password</label>
+    <input class="form-input" type="password" id="login-pass" placeholder="Enter your password" autocomplete="current-password"/>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In to ConstituencyIQ</button>
+    <p style="text-align:center;font-size:11px;color:var(--text3);margin-top:12px">Access provided by your campaign administrator</p>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="shell" id="app-shell">
 
 <div class="sidebar">
-  <div class="sb-logo-wrap">
+  <div class="sb-head">
     <div class="sb-brand"><div class="sb-icon">C</div><div class="sb-name">ConstituencyIQ</div></div>
     <div class="sb-tag">Political Intelligence</div>
+  </div>
+  <div class="sb-user">
+    <div class="sb-uname" id="sb-uname">Loading...</div>
+    <div class="sb-urole" id="sb-urole"></div>
   </div>
   <div class="sb-scroll">
     <div class="sb-group">Intelligence</div>
@@ -208,48 +267,43 @@ tr:hover td{background:var(--s3)35}
     <button class="nav-item" onclick="go('kobo')"><span class="nav-ic">&#128203;</span><span class="nav-lbl">KoboToolbox</span></button>
     <button class="nav-item" onclick="go('upload')"><span class="nav-ic">&#128193;</span><span class="nav-lbl">Upload File</span></button>
     <button class="nav-item" onclick="go('visualise')"><span class="nav-ic">&#128202;</span><span class="nav-lbl">Visualise</span></button>
+    <button class="nav-item hide" id="nav-fw" onclick="go('fieldform')"><span class="nav-ic">&#9997;</span><span class="nav-lbl">Add Voter</span></button>
+    <button class="nav-item hide" id="nav-admin" onclick="go('admin')"><span class="nav-ic">&#9881;</span><span class="nav-lbl">Admin Panel</span></button>
   </div>
   <div class="sb-bot">
-    <div class="st-pill"><div class="st-dot" id="ai-dot"></div><span id="ai-st-txt">Add API key</span></div>
-    <div id="data-pill" style="margin-top:6px;font-size:10px;color:var(--text3);text-align:center">No data</div>
+    <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+    <div class="dp" id="dp">No data</div>
   </div>
 </div>
 
 <div class="main">
-  <div class="api-banner" id="api-banner">
-    <span style="font-size:11px;color:var(--gold);font-weight:700;white-space:nowrap">Setup:</span>
-    <input class="api-input" type="password" id="api-key-in" placeholder="Paste Anthropic API key (sk-ant-api03-...)"/>
-    <button class="btn btn-gold btn-sm" onclick="saveKey()">Activate AI</button>
-    <span style="font-size:10px;color:var(--text3)">Stored locally only. <a href="https://console.anthropic.com" target="_blank" style="color:var(--gold)">Get free key</a></span>
-  </div>
-
   <div class="topbar">
     <div><div class="tb-title" id="tb-title">AI Assistant</div><div class="tb-sub" id="tb-sub">Ask anything in Hindi, English, or Hinglish</div></div>
     <div class="tb-right">
-      <span class="badge badge-gold" id="src-badge" style="display:none"></span>
-      <span class="badge badge-blue" id="rec-badge" style="display:none"></span>
-      <span class="badge badge-gold">Beta v2</span>
+      <span class="badge bg" id="src-badge" style="display:none"></span>
+      <span class="badge bb" id="rec-badge" style="display:none"></span>
+      <span class="badge bg">v2.0</span>
     </div>
   </div>
 
   <!-- CHAT -->
   <div class="chat-wrap on" id="panel-chat">
-    <div class="chat-topbar">
-      <div class="chat-av">&#129302;</div>
-      <div><div class="chat-nm">ConstituencyIQ Assistant</div><div class="chat-st-t" id="chat-st-t">Lucknow West loaded</div></div>
+    <div class="chat-head">
+      <div class="cav">&#129302;</div>
+      <div><div class="cnm">ConstituencyIQ Assistant</div><div class="cst" id="cst">Ready</div></div>
       <button class="btn btn-dim btn-sm" style="margin-left:auto" onclick="clearChat()">Clear</button>
     </div>
     <div class="chat-msgs" id="chat-msgs"></div>
     <div class="chips">
       <div class="chip" onclick="sc(this)">Lucknow West summary</div>
-      <div class="chip" onclick="sc(this)">Weakest ward kaun sa hai?</div>
+      <div class="chip" onclick="sc(this)">Sabse weak ward kaun sa?</div>
       <div class="chip" onclick="sc(this)">SP 2022 mein kaise jeeta?</div>
       <div class="chip" onclick="sc(this)">Muslim voter strategy</div>
-      <div class="chip" onclick="sc(this)">Win karne ke liye top 5 actions?</div>
+      <div class="chip" onclick="sc(this)">Win karne ke liye kya karein?</div>
       <div class="chip" onclick="sc(this)">Current issues kya hain?</div>
     </div>
-    <div class="chat-input-row">
-      <input class="chat-in" id="chat-in" placeholder="Kuch bhi poochho - Hindi, English, Hinglish..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"/>
+    <div class="ci-wrap">
+      <input class="ci" id="ci" placeholder="Kuch bhi poochho - Hindi, English, Hinglish..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"/>
       <button class="send-btn" onclick="sendMsg()">&#10148;</button>
     </div>
   </div>
@@ -257,7 +311,7 @@ tr:hover td{background:var(--s3)35}
   <!-- SCORE -->
   <div class="panel" id="panel-score">
     <div class="card">
-      <div class="card-title">Popularity Score</div>
+      <div class="ct">Popularity Score</div>
       <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:14px">
         <div class="score-ring">
           <svg viewBox="0 0 110 110" width="110" height="110">
@@ -268,18 +322,18 @@ tr:hover td{background:var(--s3)35}
         </div>
         <div style="flex:1;min-width:160px">
           <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px" id="score-verdict">Click to calculate</div>
-          <div id="score-explain" style="font-size:11px;color:var(--text2);line-height:1.55">Uses survey data and constituency intelligence to calculate your popularity index.</div>
+          <div id="score-explain" style="font-size:11px;color:var(--text2);line-height:1.55">AI-calculated popularity index based on constituency data.</div>
         </div>
       </div>
       <button class="btn btn-gold btn-sm" onclick="calcScore()" id="score-btn">Calculate Score</button>
     </div>
     <div class="card" id="score-factors-card" style="display:none">
-      <div class="card-title">Score Breakdown</div>
+      <div class="ct">Score Breakdown</div>
       <div id="score-factors"></div>
     </div>
     <div class="card">
-      <div class="card-title">AI Analysis</div>
-      <div class="card-sub">What this score means - strengths, risks, immediate actions.</div>
+      <div class="ct">AI Analysis</div>
+      <div class="cs">What this score means - strengths, risks, actions.</div>
       <div id="score-ai" class="ai-out" style="display:none"></div>
     </div>
   </div>
@@ -287,8 +341,8 @@ tr:hover td{background:var(--s3)35}
   <!-- ACTIONS -->
   <div class="panel" id="panel-actions">
     <div class="card">
-      <div class="card-title">Top 5 Actions to Win</div>
-      <div class="card-sub">AI-generated hyperlocal micro-actions ranked by vote impact. Specific to Lucknow West wards and communities.</div>
+      <div class="ct">Top 5 Actions to Win</div>
+      <div class="cs">AI-generated hyperlocal micro-actions ranked by vote impact. Specific to Lucknow West wards and communities.</div>
       <button class="btn btn-gold btn-sm" onclick="getActions()" id="actions-btn">Generate Action Plan</button>
       <div id="actions-list" style="margin-top:11px"></div>
     </div>
@@ -297,108 +351,99 @@ tr:hover td{background:var(--s3)35}
   <!-- PREDICT -->
   <div class="panel" id="panel-predict">
     <div class="card">
-      <div class="card-title">Vote Prediction Engine</div>
+      <div class="ct">Vote Prediction Engine</div>
       <div class="g2" style="margin-bottom:10px">
-        <div><div class="lbl">Candidate Name</div><input id="cand" placeholder="e.g. Rajesh Kumar"/></div>
-        <div><div class="lbl">Party</div><input id="cparty" placeholder="e.g. BJP, SP, BSP..."/></div>
+        <div><label class="lbl">Candidate Name</label><input id="cand" placeholder="e.g. Rajesh Kumar"/></div>
+        <div><label class="lbl">Party</label><input id="cparty" placeholder="e.g. BJP, SP, BSP..."/></div>
       </div>
       <button class="btn btn-red btn-sm" onclick="predict()" id="pred-btn">Predict and Strategise</button>
       <div id="pred-result" class="ai-out" style="display:none"></div>
     </div>
     <div class="card">
-      <div class="card-title">Hinglish Voter Call Script</div>
+      <div class="ct">Hinglish Voter Call Script</div>
       <div class="g2" style="margin-bottom:10px">
-        <div><div class="lbl">Target Segment</div><input id="seg" placeholder="e.g. OBC mahila, Muslim youth"/></div>
+        <div><label class="lbl">Target Segment</label><input id="seg" placeholder="e.g. OBC mahila, Muslim youth"/></div>
         <div style="display:flex;align-items:flex-end"><button class="btn btn-blue btn-sm" onclick="genScript()" id="script-btn">Generate Script</button></div>
       </div>
-      <div id="script-result" class="ai-out gn" style="display:none"></div>
+      <div id="script-result" class="ai-out" style="border-color:#10b9811f;display:none"></div>
     </div>
   </div>
 
   <!-- IVRS -->
   <div class="panel" id="panel-ivrs">
     <div class="card" style="border-color:#f0a50022">
-      <div class="card-title">IVRS Voice AI - Contextual Voter Calls</div>
-      <div class="card-sub">The IVRS AI calls voters and holds a real, personalised conversation - not a recorded message. It knows each voter's name, ward, issue, family situation, and the candidate's specific promise for their area. Try the demo below.</div>
+      <div class="ct">IVRS Voice AI - Contextual Voter Calls</div>
+      <div class="cs">The AI calls voters and holds a real personalised conversation. It knows each voter by name, ward, issue, and situation.</div>
       <div class="g2" style="margin-bottom:10px">
-        <div><div class="lbl">Voter Profile (from survey data)</div><input id="ivrs-voter" placeholder="e.g. Ramesh Yadav, Rajajipuram, OBC, waterlogging issue"/></div>
-        <div><div class="lbl">Calling on behalf of</div><input id="ivrs-cand" placeholder="e.g. Candidate Name (Party)"/></div>
+        <div><label class="lbl">Voter Profile</label><input id="ivrs-voter" placeholder="e.g. Ramesh Yadav, Rajajipuram, OBC, waterlogging"/></div>
+        <div><label class="lbl">Calling for</label><input id="ivrs-cand" placeholder="e.g. Candidate Name (Party)"/></div>
       </div>
-      <button class="btn btn-gold btn-sm" onclick="genIVRSDemo()" id="ivrs-gen-btn">Generate Demo Call Transcript</button>
-      <div id="ivrs-output" class="ivrs-convo" style="display:none"></div>
+      <button class="btn btn-gold btn-sm" onclick="genIVRS()" id="ivrs-btn">Generate Demo Call Transcript</button>
+      <div id="ivrs-output" class="ivrs-box" style="display:none"></div>
     </div>
     <div class="card">
-      <div class="card-title">How IVRS Works - Live Example</div>
-      <div class="ivrs-convo">
-        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Namaste, kya main Ramesh Kumar ji se baat kar sakta hoon? Main Rajesh Sharma ji ki campaign se call kar raha hoon.</div>
+      <div class="ct">Live Example Conversation</div>
+      <div class="ivrs-box">
+        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Namaste, kya main Ramesh Kumar ji se baat kar sakta hoon?</div>
         <div class="ivrs-line"><span style="color:var(--green);font-weight:600">Voter: </span>Haan, main Ramesh hoon. Kaun hai aap?</div>
-        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Ramesh ji, main Rajesh Sharma ji ka sahayak hoon. Aap Ward 1, Rajajipuram mein rehte hain - wahan waterlogging ki bahut badi problem hai. Rajesh ji ne is par specifically kaam karna start kar diya hai. 15 tarikh tak drain repair work shuru hoga aapke area mein.</div>
-        <div class="ivrs-line"><span style="color:var(--green);font-weight:600">Voter: </span>Haan yaar, har monsoon mein ghar ke saamne paani bhar jaata hai. Kab thik hoga?</div>
-        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Bilkul samajh sakta hoon Ramesh ji. Is baar permanent solution ke liye underground drainage proposal approved ho gaya hai. Aapke ward ke 847 log is se directly benefit karenge. Aap Rajesh ji ko support karenge?</div>
-        <div class="ivrs-line"><span style="color:var(--green);font-weight:600">Voter: </span>Dekho, pehle kaam dikhao phir vote milega.</div>
-        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Bilkul sahi baat hai Ramesh ji. Rajesh ji ka exactly yahi kehna hai - kaam se vote, wada se nahi. 15 tarikh ko personally site visit hogi. Ek baar aur mauka dijiye. Dhanyawad!</div>
+        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Ramesh ji, aap Ward 1 Rajajipuram mein rehte hain - wahan waterlogging ki bahut badi problem hai na? Rajesh ji ne 15 tarikh tak drain repair shuru karne ka plan kiya hai specifically aapke area ke liye.</div>
+        <div class="ivrs-line"><span style="color:var(--green);font-weight:600">Voter: </span>Haan yaar, har monsoon mein paani bhar jaata hai. Kab thik hoga?</div>
+        <div class="ivrs-line"><span style="color:var(--blue);font-weight:600">AI: </span>Bilkul samajh sakta hoon. Is baar permanent underground drainage solution approved ho gaya hai. Aap Rajesh ji ko ek mauka denge?</div>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-title">AI Stack for IVRS</div>
-      <div class="row" style="flex-wrap:wrap;margin-bottom:12px">
-        <span class="tag tag-blue">Sarvam AI - Speech to Text (Indian languages)</span>
-        <span class="tag tag-blue">Claude Haiku - Conversation Brain</span>
-        <span class="tag tag-green">ElevenLabs - Natural Hindi Voice</span>
-        <span class="tag tag-gold">Exotel - Indian Telephony</span>
+      <div style="margin-top:10px">
+        <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:6px">AI Stack for IVRS (Phase 2)</div>
+        <div class="row">
+          <span style="display:inline-flex;font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;margin:2px;background:#2563eb12;color:var(--cyan);border:1px solid #2563eb1f">Sarvam AI STT</span>
+          <span style="display:inline-flex;font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;margin:2px;background:#2563eb12;color:var(--cyan);border:1px solid #2563eb1f">Claude Haiku</span>
+          <span style="display:inline-flex;font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;margin:2px;background:#10b98112;color:var(--green);border:1px solid #10b9811f">ElevenLabs</span>
+          <span style="display:inline-flex;font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;margin:2px;background:#f0a50012;color:var(--gold);border:1px solid #f0a5001f">Exotel</span>
+        </div>
       </div>
-      <div class="card-sub">Phase 2 feature. Backend integration required. Est. cost: Rs 0.35/minute call + AI processing.</div>
-      <div class="roadmap-item">Phase 2: WhatsApp Business API integration</div>
-      <div class="roadmap-item">Phase 2: Ward-level heatmap on Google Maps</div>
-      <div class="roadmap-item">Phase 2: Mobile Android app for field workers</div>
-      <div class="roadmap-item">Phase 3: Candidate voice cloning via ElevenLabs</div>
-      <div class="roadmap-item">Phase 3: Real-time call outcome sync to dashboard</div>
     </div>
   </div>
 
-  <!-- LUCKNOW -->
+  <!-- LUCKNOW WEST -->
   <div class="panel" id="panel-lucknow">
-    <div class="intel-grid">
-      <div class="intel-card"><div class="intel-label">Total Electors</div><div class="intel-val">3.9 Lakh</div><div class="intel-sub">2022 election rolls</div></div>
-      <div class="intel-card"><div class="intel-label">2022 Winner</div><div class="intel-val" style="color:var(--red)">Armaan Khan SP</div><div class="intel-sub">48.19% - Margin 8184</div></div>
-      <div class="intel-card"><div class="intel-label">Runner-up</div><div class="intel-val" style="color:var(--gold)">Anjani Shrivastav BJP</div><div class="intel-sub">45.03% - Razor thin</div></div>
-      <div class="intel-card"><div class="intel-label">Muslim Voters</div><div class="intel-val">~35%</div><div class="intel-sub">Decisive in SP 2022 win</div></div>
-      <div class="intel-card"><div class="intel-label">Voter Turnout</div><div class="intel-val">65.4%</div><div class="intel-sub">Above UP avg of 60.4%</div></div>
-      <div class="intel-card"><div class="intel-label">History</div><div class="intel-val">BJP 7 wins</div><div class="intel-sub">SP 2 wins since 1977</div></div>
+    <div class="ig">
+      <div class="ic"><div class="il">Total Electors</div><div class="iv">3.9 Lakh</div><div class="is">2022 election rolls</div></div>
+      <div class="ic"><div class="il">2022 Winner</div><div class="iv" style="color:var(--red)">Armaan Khan SP</div><div class="is">48.19% - Margin 8,184</div></div>
+      <div class="ic"><div class="il">Runner-up BJP</div><div class="iv" style="color:var(--gold)">Anjani Shrivastav</div><div class="is">45.03% - Razor thin</div></div>
+      <div class="ic"><div class="il">Muslim Voters</div><div class="iv">~35%</div><div class="is">Decisive in SP 2022 win</div></div>
+      <div class="ic"><div class="il">Voter Turnout</div><div class="iv">65.4%</div><div class="is">Above UP avg 60.4%</div></div>
+      <div class="ic"><div class="il">History</div><div class="iv">BJP 7 wins</div><div class="is">SP won 2012 and 2022</div></div>
     </div>
     <div class="card">
-      <div class="card-title">Key Areas and Issues</div>
-      <div class="tbl-wrap"><table>
+      <div class="ct">Key Areas and Issues</div>
+      <div class="tw"><table>
         <thead><tr><th>Area</th><th>Profile</th><th>Key Issue</th><th>Community</th></tr></thead>
         <tbody>
           <tr><td>Rajajipuram</td><td>Dense residential</td><td>Waterlogging, roads</td><td>OBC, SC</td></tr>
           <tr><td>Alambagh</td><td>Commercial hub</td><td>Traffic, vendor zone</td><td>Mixed traders</td></tr>
           <tr><td>Nishatganj</td><td>Urban mixed</td><td>Unemployment</td><td>Muslim OBC</td></tr>
           <tr><td>Tulsi Nagar</td><td>Middle class</td><td>Education, sanitation</td><td>Brahmin, Kayastha</td></tr>
-          <tr><td>Sadar</td><td>Old city dense</td><td>Healthcare, drainage</td><td>Muslim majority</td></tr>
+          <tr><td>Sadar</td><td>Old city</td><td>Healthcare, drainage</td><td>Muslim majority</td></tr>
           <tr><td>Aminabad</td><td>Old commercial</td><td>Parking, infra</td><td>Muslim traders</td></tr>
           <tr><td>Naka Hindola</td><td>Working class</td><td>Unemployment, security</td><td>OBC, SC</td></tr>
         </tbody>
       </table></div>
     </div>
     <div class="card">
-      <div class="card-title">Community Breakdown</div>
+      <div class="ct">Community Breakdown</div>
       <canvas id="community-chart" style="max-height:200px"></canvas>
     </div>
     <div class="card">
-      <div class="card-title">Ground Issues - Intelligence Feed</div>
+      <div class="ct">Ground Issues - Intelligence Feed</div>
       <div id="lko-issues"></div>
     </div>
     <div class="card">
-      <div class="card-title">Election History</div>
-      <div class="tbl-wrap"><table>
+      <div class="ct">Election History</div>
+      <div class="tw"><table>
         <thead><tr><th>Year</th><th>Winner</th><th>Party</th><th>Votes</th><th>Margin</th></tr></thead>
         <tbody>
-          <tr><td>2022</td><td>Armaan Khan</td><td><span class="tag tag-red">SP</span></td><td>1,24,497</td><td>8,184</td></tr>
-          <tr><td>2017</td><td>Suresh K Shrivastav</td><td><span class="tag tag-gold">BJP</span></td><td>93,022</td><td>13,072</td></tr>
-          <tr><td>2012</td><td>Mohd Rehan</td><td><span class="tag tag-red">SP</span></td><td>49,912</td><td>7,812</td></tr>
-          <tr><td>2007</td><td>Lal Ji Tandon</td><td><span class="tag tag-gold">BJP</span></td><td>43,290</td><td>13,822</td></tr>
-          <tr><td>2002</td><td>Lalji Tandon</td><td><span class="tag tag-gold">BJP</span></td><td>57,628</td><td>14,539</td></tr>
+          <tr><td>2022</td><td>Armaan Khan</td><td>SP</td><td>1,24,497</td><td>8,184</td></tr>
+          <tr><td>2017</td><td>Suresh K Shrivastav</td><td>BJP</td><td>93,022</td><td>13,072</td></tr>
+          <tr><td>2012</td><td>Mohd Rehan</td><td>SP</td><td>49,912</td><td>7,812</td></tr>
+          <tr><td>2007</td><td>Lal Ji Tandon</td><td>BJP</td><td>43,290</td><td>13,822</td></tr>
         </tbody>
       </table></div>
     </div>
@@ -407,30 +452,30 @@ tr:hover td{background:var(--s3)35}
   <!-- WEB FETCH -->
   <div class="panel" id="panel-webfetch">
     <div class="card" style="border-color:#f0a50022">
-      <div class="card-title">Fetch Intelligence from Web URLs</div>
-      <div class="card-sub">Add any URL - news article, Wikipedia, government report. AI reads the content and makes it available in chat.</div>
+      <div class="ct">Fetch Intelligence from Web URLs</div>
+      <div class="cs">Add any URL - news, Wikipedia, reports. AI reads and analyses content, making it available in chat.</div>
       <div class="row" style="margin-bottom:10px">
         <input id="url-in" placeholder="https://..." style="flex:1"/>
-        <input id="url-lbl" placeholder="Label" style="width:140px"/>
+        <input id="url-lbl" placeholder="Label" style="width:130px"/>
         <button class="btn btn-gold btn-sm" onclick="addUrl()">Add URL</button>
       </div>
-      <div style="margin-bottom:11px">
-        <div class="lbl" style="margin-bottom:5px">Quick Add</div>
+      <div style="margin-bottom:10px">
+        <label class="lbl" style="margin-bottom:5px">Quick Add</label>
         <div class="row">
           <button class="btn btn-dim btn-sm" onclick="quickUrl('https://en.wikipedia.org/wiki/Lucknow_West_Assembly_constituency','Wiki: LKO West')">Wiki: LKO West</button>
           <button class="btn btn-dim btn-sm" onclick="quickUrl('https://en.wikipedia.org/wiki/Lucknow','Wiki: Lucknow')">Wiki: Lucknow</button>
-          <button class="btn btn-dim btn-sm" onclick="quickUrl('https://en.wikipedia.org/wiki/2022_Uttar_Pradesh_legislative_assembly_election','UP 2022 Election')">UP 2022 Election</button>
+          <button class="btn btn-dim btn-sm" onclick="quickUrl('https://en.wikipedia.org/wiki/2022_Uttar_Pradesh_legislative_assembly_election','UP 2022')">UP 2022 Election</button>
         </div>
       </div>
       <div id="url-list"></div>
-      <div id="fetch-st" class="info"></div>
+      <div id="fetch-st" style="font-size:11px;color:var(--text3);margin-top:5px"></div>
     </div>
     <div class="card" id="kb-card" style="display:none">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-        <div class="card-title" style="margin-bottom:0">Knowledge Base</div>
-        <span class="badge badge-green" id="kb-count">0 sources</span>
+        <div class="ct" style="margin-bottom:0">Knowledge Base</div>
+        <span class="badge bgn" id="kb-count">0 sources</span>
       </div>
-      <div class="card-sub">Fetched content is available to AI in chat.</div>
+      <div class="cs">All fetched content is available to the AI in chat.</div>
       <div id="kb-list"></div>
       <button class="btn btn-blue btn-sm" style="margin-top:7px" onclick="analyseKB()">Analyse All with AI</button>
       <div id="kb-analysis" class="ai-out" style="display:none"></div>
@@ -440,13 +485,21 @@ tr:hover td{background:var(--s3)35}
   <!-- KOBO -->
   <div class="panel" id="panel-kobo">
     <div class="card" style="border-color:#416FBA30">
-      <div class="card-title">KoboToolbox Integration</div>
-      <div class="card-sub">Free API: kf.kobotoolbox.org then Account Settings then API Key</div>
-      <div style="margin-bottom:9px"><div class="lbl">Server</div>
-        <select id="kobo-srv"><option value="https://kf.kobotoolbox.org">Global (kf.kobotoolbox.org)</option><option value="https://kobo.humanitarianresponse.info">Humanitarian</option></select>
+      <div class="ct">KoboToolbox Integration</div>
+      <div class="cs">Free API at kf.kobotoolbox.org - Account Settings - API Key</div>
+      <div style="margin-bottom:9px">
+        <label class="lbl">Server</label>
+        <select id="kobo-srv">
+          <option value="https://kf.kobotoolbox.org">Global (kf.kobotoolbox.org)</option>
+          <option value="https://kobo.humanitarianresponse.info">Humanitarian</option>
+        </select>
       </div>
-      <div style="margin-bottom:10px"><div class="lbl">API Token</div>
-        <div style="position:relative"><input id="kobo-tok" type="password" placeholder="Paste your token here"/><button onclick="tp('kobo-tok')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px">Show</button></div>
+      <div style="margin-bottom:10px">
+        <label class="lbl">API Token</label>
+        <div style="position:relative">
+          <input id="kobo-tok" type="password" placeholder="Paste your token here"/>
+          <button onclick="tp('kobo-tok')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px">Show</button>
+        </div>
       </div>
       <div class="row">
         <button class="btn btn-blue btn-sm" onclick="koboConnect()" id="kobo-btn">Connect</button>
@@ -454,14 +507,20 @@ tr:hover td{background:var(--s3)35}
       </div>
       <div id="kobo-st" style="margin-top:7px;font-size:11px"></div>
     </div>
-    <div class="card" id="kobo-forms-card" style="display:none"><div class="card-title">Survey Forms</div><div id="forms-list"></div></div>
+    <div class="card" id="kobo-forms-card" style="display:none">
+      <div class="ct">Survey Forms</div>
+      <div id="forms-list"></div>
+    </div>
     <div class="card" id="kobo-sync-card" style="display:none">
-      <div class="card-title">Sync Settings</div>
+      <div class="ct">Sync Settings</div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 9px;background:var(--bg);border-radius:7px;border:1px solid var(--border);margin-bottom:8px">
         <div><div style="font-size:11px;font-weight:600">Auto-sync every 5 min</div><div style="font-size:10px;color:var(--text3)">Pull new responses automatically</div></div>
         <div class="toggle" id="as-tog" onclick="toggleAS()"></div>
       </div>
-      <div class="row"><button class="btn btn-green btn-sm" onclick="koboSync()" id="ksync-btn">Sync Now</button><span id="last-sync" style="font-size:10px;color:var(--text3)"></span></div>
+      <div class="row">
+        <button class="btn btn-green btn-sm" onclick="koboSync()" id="ksync-btn">Sync Now</button>
+        <span id="last-sync" style="font-size:10px;color:var(--text3)"></span>
+      </div>
       <div id="sync-log" class="slog" style="display:none"></div>
     </div>
   </div>
@@ -469,717 +528,956 @@ tr:hover td{background:var(--s3)35}
   <!-- UPLOAD -->
   <div class="panel" id="panel-upload">
     <div class="card">
-      <div class="card-title">Upload Survey Data</div>
+      <div class="ct">Upload Survey Data</div>
       <input type="file" id="file-in" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile(event)"/>
-      <div class="row"><button class="btn btn-gold btn-sm" onclick="document.getElementById('file-in').click()">Choose File</button><span style="font-size:11px;color:var(--text3)">.xlsx .xls .csv</span></div>
+      <div class="row">
+        <button class="btn btn-gold btn-sm" onclick="document.getElementById('file-in').click()">Choose File</button>
+        <span style="font-size:11px;color:var(--text3)">.xlsx .xls .csv</span>
+      </div>
       <div id="file-st"></div>
     </div>
-    <div class="card"><div class="card-title">Custom Fields</div><div id="field-tags" style="margin-bottom:7px"></div><div class="row"><input id="new-field" placeholder="Add field" style="width:160px"/><button class="btn btn-blue btn-sm" onclick="addField()">Add</button></div></div>
-    <div class="card"><div class="card-title">Manual Entry</div><div id="manual-form" class="g3" style="margin-bottom:9px"></div><button class="btn btn-green btn-sm" onclick="addManualRow()">Add Record</button><div id="manual-st"></div></div>
-    <div class="card" id="preview-card" style="display:none"><div class="card-title" id="preview-title">Preview</div><div class="tbl-wrap"><table id="preview-tbl"></table></div><div id="preview-more" style="font-size:10px;color:var(--text3);margin-top:5px"></div></div>
+    <div class="card">
+      <div class="ct">Custom Fields</div>
+      <div id="field-tags" style="margin-bottom:7px"></div>
+      <div class="row">
+        <input id="new-field" placeholder="Add field" style="width:160px"/>
+        <button class="btn btn-blue btn-sm" onclick="addField()">Add</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">Manual Entry</div>
+      <div id="manual-form" class="g3" style="margin-bottom:9px"></div>
+      <button class="btn btn-green btn-sm" onclick="addManualRow()">Add Record</button>
+      <div id="manual-st"></div>
+    </div>
+    <div class="card" id="preview-card" style="display:none">
+      <div class="ct" id="preview-title">Preview</div>
+      <div class="tw"><table id="preview-tbl"></table></div>
+      <div id="preview-more" style="font-size:10px;color:var(--text3);margin-top:5px"></div>
+    </div>
   </div>
 
   <!-- VISUALISE -->
   <div class="panel" id="panel-visualise">
     <div class="stat-row" id="stat-row"></div>
     <div class="card">
-      <div class="card-title">Data Explorer</div>
+      <div class="ct">Data Explorer</div>
       <div class="row" style="margin-bottom:10px">
-        <div style="flex:1"><div class="lbl">Field</div><select id="chart-field" onchange="renderChart()"></select></div>
-        <div style="width:105px"><div class="lbl">Type</div><select id="chart-type" onchange="renderChart()"><option value="bar">Bar</option><option value="pie">Pie</option><option value="doughnut">Doughnut</option></select></div>
+        <div style="flex:1"><label class="lbl">Field</label><select id="chart-field" onchange="renderChart()"></select></div>
+        <div style="width:105px"><label class="lbl">Type</label>
+          <select id="chart-type" onchange="renderChart()">
+            <option value="bar">Bar</option>
+            <option value="pie">Pie</option>
+            <option value="doughnut">Doughnut</option>
+          </select>
+        </div>
         <button class="btn btn-dim btn-sm" style="margin-top:14px" onclick="refreshVis()">Refresh</button>
       </div>
       <canvas id="main-chart" style="max-height:230px"></canvas>
     </div>
-    <div class="card"><div class="card-title" id="bd-title">Breakdown</div><div id="bd-list"></div></div>
+    <div class="card">
+      <div class="ct" id="bd-title">Breakdown</div>
+      <div id="bd-list"></div>
+    </div>
+  </div>
+
+  <!-- FIELD WORKER FORM -->
+  <div class="panel" id="panel-fieldform">
+    <div class="card">
+      <div class="ct">Add Voter Record</div>
+      <div class="cs">Enter voter details from your field visit. Saves directly to the campaign database.</div>
+      <div class="g2" style="margin-bottom:9px">
+        <div><label class="lbl">Full Name</label><input id="fw-name" placeholder="Voter full name"/></div>
+        <div><label class="lbl">Age</label><input id="fw-age" type="number" placeholder="Age"/></div>
+      </div>
+      <div class="g2" style="margin-bottom:9px">
+        <div><label class="lbl">Gender</label>
+          <select id="fw-gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select>
+        </div>
+        <div><label class="lbl">Caste</label>
+          <select id="fw-caste"><option value="">Select</option><option>OBC</option><option>General</option><option>SC</option><option>ST</option><option>Muslim</option><option>Brahmin</option><option>Kayastha</option><option>Vaishya</option></select>
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:9px">
+        <div><label class="lbl">Ward</label>
+          <select id="fw-ward">
+            <option value="">Select Ward</option>
+            <option>Ward 1 - Rajajipuram</option><option>Ward 2 - Alambagh</option>
+            <option>Ward 3 - Nishatganj</option><option>Ward 4 - Tulsi Nagar</option>
+            <option>Ward 5 - Sadar</option><option>Ward 6 - Aminabad</option>
+            <option>Ward 7 - Naka Hindola</option><option>Ward 8 - Vikas Nagar</option>
+          </select>
+        </div>
+        <div><label class="lbl">Occupation</label>
+          <select id="fw-occ"><option value="">Select</option><option>Daily Labour</option><option>Shop Owner</option><option>Street Vendor</option><option>Govt Job</option><option>Private Job</option><option>Farmer</option><option>Student</option><option>Housewife</option></select>
+        </div>
+      </div>
+      <div class="g2" style="margin-bottom:9px">
+        <div><label class="lbl">Primary Problem</label>
+          <select id="fw-prob"><option value="">Select</option><option>Waterlogging</option><option>Road Repair</option><option>Unemployment</option><option>Healthcare</option><option>Education</option><option>Water Supply</option><option>Electricity</option><option>Security</option></select>
+        </div>
+        <div><label class="lbl">Candidate Support</label>
+          <select id="fw-support"><option value="">Select</option><option>Strongly For</option><option>Leaning For</option><option>Neutral</option><option>Leaning Against</option><option>Strongly Against</option></select>
+        </div>
+      </div>
+      <div style="margin-bottom:9px"><label class="lbl">Phone Number</label><input id="fw-phone" type="tel" placeholder="98XXXXXXXX"/></div>
+      <div style="margin-bottom:12px"><label class="lbl">Voted Last Election</label>
+        <select id="fw-voted"><option value="">Select</option><option>Yes</option><option>No</option><option>First Time</option></select>
+      </div>
+      <button class="btn btn-gold" onclick="saveVoter()" id="fw-save-btn" style="width:100%">Save Voter Record</button>
+      <div id="fw-status" style="margin-top:8px;font-size:11px"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Today's Progress</div>
+      <div id="fw-progress" style="font-size:12px;color:var(--text2)">Loading...</div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="panel" id="panel-admin">
+    <div class="card" style="border-color:#7c3aed30">
+      <div class="ct">Create New User</div>
+      <div class="cs">Add campaign managers, field workers, or candidate accounts.</div>
+      <div class="g2" style="margin-bottom:9px">
+        <div><label class="lbl">Full Name</label><input id="adm-name" placeholder="User full name"/></div>
+        <div><label class="lbl">Email</label><input id="adm-email" type="email" placeholder="user@email.com"/></div>
+      </div>
+      <div class="g2" style="margin-bottom:9px">
+        <div><label class="lbl">Password</label><input id="adm-pass" type="password" placeholder="Min 6 characters"/></div>
+        <div><label class="lbl">Role</label>
+          <select id="adm-role">
+            <option value="field_worker">Field Worker</option>
+            <option value="campaign_manager">Campaign Manager</option>
+            <option value="candidate">Candidate</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:9px">
+        <label class="lbl">Assigned Ward</label>
+        <select id="adm-ward">
+          <option value="">All Wards</option>
+          <option>Ward 1 - Rajajipuram</option><option>Ward 2 - Alambagh</option>
+          <option>Ward 3 - Nishatganj</option><option>Ward 4 - Tulsi Nagar</option>
+          <option>Ward 5 - Sadar</option><option>Ward 6 - Aminabad</option>
+          <option>Ward 7 - Naka Hindola</option><option>Ward 8 - Vikas Nagar</option>
+        </select>
+      </div>
+      <button class="btn btn-sm" style="background:var(--purple);color:#fff" onclick="createUser()" id="adm-btn">Create User</button>
+      <div id="adm-status" style="margin-top:8px;font-size:11px"></div>
+    </div>
+    <div class="card">
+      <div class="ct">Platform Stats</div>
+      <div class="stat-row" id="adm-stats"></div>
+    </div>
   </div>
 
 </div></div>
+
 <script>
-
-var rows=[],fields=["Name","Age","Gender","Caste","Ward","Area","Occupation","Monthly_Income","Family_Size","Problem","Voted_Last","Support","Candidate_Awareness","Phone"];
-var chatHist=[],busy=false,chartInst=null,communityChart=null;
-var autoSync=false,asInterval=null,dataSource=null;
-var koboAsset=null,koboTok='',koboSrv='https://kf.kobotoolbox.org';
-var urlList=[],knowledgeBase=[],apiKey='';
-var COLS=["#f0a500","#2563eb","#10b981","#7c3aed","#ef4444","#06b6d4","#ea580c","#ec4899","#84cc16","#a78bfa"];
-
-function saveKey(){
-  var k=document.getElementById('api-key-in').value.trim();
-  if(!k||!k.startsWith('sk-')){
-    alert('Enter a valid Anthropic API key starting with sk-');
-    return;
-  }
-  apiKey=k;
-  localStorage.setItem('ciq_k',k);
-  document.getElementById('api-banner').classList.add('hidden');
-  document.getElementById('ai-dot').classList.add('live');
-  document.getElementById('ai-st-txt').textContent='AI Active';
-  addBubble('API key saved! Main ab fully active hoon. Kuch bhi poochho Lucknow West ke baare mein!','b');
-}
-
-function loadKey(){
-  var k=localStorage.getItem('ciq_k');
-  if(k && k.startsWith('sk-')){
-    apiKey=k;
-    document.getElementById('api-banner').classList.add('hidden');
-    document.getElementById('api-key-in').value=k;
-    document.getElementById('ai-dot').classList.add('live');
-    document.getElementById('ai-st-txt').textContent='AI Active';
-  }
-}
-
-var META={
-  chat:{t:"💬 AI Assistant",s:"Ask anything — Hindi, English, Hinglish"},
-  score:{t:"🎯 Popularity Score",s:"AI-calculated popularity index"},
-  actions:{t:"⚡ Action Plan",s:"Top 5 micro-actions to increase votes"},
-  predict:{t:"🗳️ Vote Prediction",s:"AI vote share forecast"},
-  ivrs:{t:"📞 IVRS Voice AI",s:"Contextual voter phone calls"},
-  lucknow:{t:"🏙️ Lucknow West (#171)",s:"Real constituency data and election intelligence"},
-  webfetch:{t:"🌐 Fetch from Web",s:"Add any URL as AI knowledge source"},
-  kobo:{t:"📋 KoboToolbox",s:"Live field survey integration"},
-  upload:{t:"📁 Upload File",s:"Excel, XLS, or CSV"},
-  visualise:{t:"📊 Visualise Data",s:"Charts and breakdowns"}
+// ═══════════════════════════════════════════════════════════
+// FIREBASE
+// ═══════════════════════════════════════════════════════════
+var fbConfig = {
+  apiKey: "AIzaSyDYkJUEGM-Y4Y-nATN18MdnE419B7PaJjY",
+  authDomain: "constituencyiq.firebaseapp.com",
+  projectId: "constituencyiq",
+  storageBucket: "constituencyiq.firebasestorage.app",
+  messagingSenderId: "1035065794719",
+  appId: "1:1035065794719:web:e4f635b6c7a22ed3be02aa"
 };
-var NAV_ORDER=['chat','score','actions','predict','ivrs','lucknow','webfetch','kobo','upload','visualise'];
+firebase.initializeApp(fbConfig);
+var auth = firebase.auth();
+var fdb = firebase.firestore();
 
-function go(name){
-  document.querySelectorAll('.panel,.chat-wrap').forEach(function(p){p.classList.remove('on');});
-  document.querySelectorAll('.nav-item').forEach(function(b){b.classList.remove('on');});
-  var m=META[name];
-  document.getElementById('tb-title').textContent=m.t;
-  document.getElementById('tb-sub').textContent=m.s;
-  var i=NAV_ORDER.indexOf(name);
-  if(i>=0) document.querySelectorAll('.nav-item')[i].classList.add('on');
-  if(name==='chat'){
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+var BACKEND = 'https://constituencyiq.vercel.app';
+var COLS = ['#f0a500','#2563eb','#10b981','#7c3aed','#ef4444','#06b6d4','#ea580c','#ec4899','#84cc16','#a78bfa'];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+var currentUser = null, userRole = 'viewer', candidateId = null, userToken = null;
+var rows = [], fields = ['Name','Age','Gender','Caste','Ward','Area','Occupation','Monthly_Income','Family_Size','Problem','Voted_Last','Support','Candidate_Awareness','Phone'];
+var chatHist = [], busy = false, chartInst = null, comChart = null;
+var autoSync = false, asInt = null;
+var urlList = [], kb = [];
+
+// ═══════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════
+auth.onAuthStateChanged(async function(user) {
+  if (user) {
+    currentUser = user;
+    userToken = await user.getIdToken();
+    try {
+      var doc = await fdb.collection('users').doc(user.uid).get();
+      if (doc.exists) {
+        var d = doc.data();
+        userRole = d.role || 'viewer';
+        candidateId = d.candidate_id || null;
+        document.getElementById('sb-uname').textContent = d.name || user.email;
+        document.getElementById('sb-urole').textContent = userRole.replace('_',' ');
+      } else {
+        userRole = 'admin';
+        candidateId = 'lko_west_001';
+        document.getElementById('sb-uname').textContent = user.email;
+        document.getElementById('sb-urole').textContent = 'admin';
+        await fdb.collection('users').doc(user.uid).set({
+          name: user.email, email: user.email, role: 'admin',
+          candidate_id: 'lko_west_001',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+    } catch(e) { userRole = 'admin'; candidateId = 'lko_west_001'; }
+    setupUI();
+    showApp();
+    loadDemo();
+    addBubble('Namaste! Main hoon ConstituencyIQ Assistant.\n\nMaine Lucknow West ka demo data load kar liya hai.\nKuch bhi poochho - election history, voter demographics, strategy!', 'b');
+  } else {
+    currentUser = null; userToken = null;
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app-shell').classList.remove('active');
+  }
+});
+
+function setupUI() {
+  if (userRole === 'admin' || userRole === 'campaign_manager') {
+    document.getElementById('nav-admin').classList.remove('hide');
+    document.getElementById('nav-fw').classList.remove('hide');
+  } else if (userRole === 'field_worker') {
+    document.getElementById('nav-fw').classList.remove('hide');
+  }
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-shell').classList.add('active');
+}
+
+async function doLogin() {
+  var email = document.getElementById('login-email').value.trim();
+  var pass = document.getElementById('login-pass').value;
+  var errEl = document.getElementById('login-error');
+  var btn = document.getElementById('login-btn');
+  if (!email || !pass) { showErr('Please enter email and password'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>Signing in...';
+  errEl.style.display = 'none';
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+  } catch(e) {
+    var msg = 'Invalid email or password';
+    if (e.code === 'auth/user-not-found') msg = 'Account not found. Contact your admin.';
+    if (e.code === 'auth/wrong-password') msg = 'Wrong password. Try again.';
+    if (e.code === 'auth/too-many-requests') msg = 'Too many attempts. Try again later.';
+    showErr(msg);
+    btn.disabled = false;
+    btn.innerHTML = 'Sign In to ConstituencyIQ';
+  }
+}
+
+document.getElementById('login-pass').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') doLogin();
+});
+
+function showErr(msg) {
+  var el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+async function doLogout() { await auth.signOut(); }
+
+async function refreshTok() {
+  if (currentUser) userToken = await currentUser.getIdToken(true);
+}
+
+// ═══════════════════════════════════════════════════════════
+// BACKEND API
+// ═══════════════════════════════════════════════════════════
+async function api(endpoint, data) {
+  await refreshTok();
+  var r = await fetch(BACKEND + '/api/' + endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + userToken },
+    body: JSON.stringify(data)
+  });
+  if (!r.ok) { var e = await r.json(); throw new Error(e.error || 'Request failed'); }
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+var META = {
+  chat:      {t:'AI Assistant',       s:'Ask anything in Hindi, English, or Hinglish'},
+  score:     {t:'Popularity Score',   s:'AI-calculated constituency popularity index'},
+  actions:   {t:'Action Plan',        s:'Top 5 micro-actions to increase votes'},
+  predict:   {t:'Vote Prediction',    s:'AI vote share forecast and strategy'},
+  ivrs:      {t:'IVRS Voice AI',      s:'Contextual personalised voter calls'},
+  lucknow:   {t:'Lucknow West #171',  s:'Real constituency data and election intelligence'},
+  webfetch:  {t:'Fetch from Web',     s:'Add any URL as AI knowledge source'},
+  kobo:      {t:'KoboToolbox',        s:'Live field survey integration'},
+  upload:    {t:'Upload File',         s:'Excel, XLS, or CSV survey data'},
+  visualise: {t:'Visualise Data',     s:'Charts and breakdowns of your data'},
+  fieldform: {t:'Add Voter Record',   s:'Field data collection form'},
+  admin:     {t:'Admin Panel',        s:'User management and platform settings'}
+};
+
+function go(name) {
+  document.querySelectorAll('.panel,.chat-wrap').forEach(function(p) { p.classList.remove('on'); });
+  document.querySelectorAll('.nav-item').forEach(function(b) { b.classList.remove('on'); });
+  var m = META[name] || {t:name, s:''};
+  document.getElementById('tb-title').textContent = m.t;
+  document.getElementById('tb-sub').textContent = m.s;
+  var navBtns = document.querySelectorAll('.nav-item');
+  var navOrder = ['chat','score','actions','predict','ivrs','lucknow','webfetch','kobo','upload','visualise','fieldform','admin'];
+  var idx = navOrder.indexOf(name);
+  if (idx >= 0 && navBtns[idx]) navBtns[idx].classList.add('on');
+  if (name === 'chat') {
     document.getElementById('panel-chat').classList.add('on');
   } else {
-    var p=document.getElementById('panel-'+name);
-    if(p) p.classList.add('on');
+    var p = document.getElementById('panel-' + name);
+    if (p) p.classList.add('on');
   }
-  if(name==='visualise') refreshVis();
-  if(name==='lucknow') renderLKO();
+  if (name === 'visualise') refreshVis();
+  if (name === 'lucknow') renderLKO();
+  if (name === 'admin') loadAdminStats();
+  if (name === 'fieldform') loadFWProgress();
 }
 
-async function callClaude(system,msg,hist){
-  hist=hist||[];
-  if(!apiKey) throw new Error('API_KEY_MISSING');
-  var r=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'x-api-key':apiKey,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
-    body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:1200,
-      system:system,
-      messages:hist.concat([{role:'user',content:msg}])
-    })
-  });
-  if(!r.ok){
-    var e=await r.json();
-    throw new Error(e.error && e.error.message ? e.error.message : 'HTTP '+r.status);
+// ═══════════════════════════════════════════════════════════
+// CHAT
+// ═══════════════════════════════════════════════════════════
+function nt() { return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
+
+function makeBubble(txt, role) {
+  var row = document.createElement('div');
+  row.className = 'mr ' + role;
+  var inner = document.createElement('div');
+  if (role === 'b') {
+    var av = document.createElement('div');
+    av.className = 'mav';
+    av.textContent = '⚡';
+    row.appendChild(av);
   }
-  var d=await r.json();
-  return d.content && d.content[0] ? d.content[0].text : 'No response.';
+  var bub = document.createElement('div');
+  bub.className = 'bub ' + role;
+  bub.innerHTML = txt.replace(/\n/g, '<br>');
+  var tm = document.createElement('div');
+  tm.className = 'bt';
+  tm.textContent = nt();
+  bub.appendChild(tm);
+  inner.appendChild(bub);
+  row.appendChild(inner);
+  return row;
 }
 
-function buildSys(){
-  var kb=knowledgeBase.length
-    ? '\n\nKNOWLEDGE BASE:\n'+knowledgeBase.map(function(k){return '['+k.label+']: '+k.summary;}).join('\n\n')
-    : '';
-  var data=rows.length
-    ? '\n\nSURVEY DATA: '+rows.length+' records. Fields: '+fields.join(', ')+'\nSample: '+JSON.stringify(rows.slice(0,4))
-    : '';
-  return 'You are ConstituencyIQ, expert AI political analyst for Lucknow West (Vidhan Sabha #171, UP).\n\nFACTS:\n- 3.9 lakh electors\n- 2022: Armaan Khan (SP) won 48.19%, margin 8,184 over BJP Anjani Shrivastav (45.03%)\n- History: BJP won 7 times since 1977, SP won 2012 and 2022\n- Muslim voters ~35%, decisive swing community\n- Communities: Muslim OBC, Hindu OBC (Yadav), Brahmin, Kayastha, SC, Vaishya\n- Areas: Rajajipuram (waterlogging), Alambagh (vendors), Nishatganj (unemployment), Tulsi Nagar (education), Sadar (healthcare), Aminabad (parking), Naka Hindola (youth unemployment)\n- Lok Sabha MP: Raj Nath Singh BJP\n'+kb+data+'\n\nSTYLE: Sharp political consultant tone. Mix Hindi/Hinglish naturally. Use data. 2-4 paragraphs max.';
+function addBubble(txt, role) {
+  var c = document.getElementById('chat-msgs');
+  c.appendChild(makeBubble(txt, role));
+  c.scrollTop = c.scrollHeight;
 }
 
-function nt(){return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}
-
-function addBubble(txt,role){
-  var c=document.getElementById('chat-msgs');
-  var row=document.createElement('div');
-  row.className='msg-row '+role;
-  if(role==='b'){
-    row.innerHTML='<div class="msg-av">&#9889;</div><div><div class="bubble b">'+txt.replace(/\n/g,'<br>')+'<div class="btime">'+nt()+'</div></div></div>';
-  } else {
-    row.innerHTML='<div><div class="bubble u">'+txt.replace(/\n/g,'<br>')+'<div class="btime">'+nt()+'</div></div></div>';
-  }
-  c.appendChild(row);
-  c.scrollTop=c.scrollHeight;
+function showTyping() {
+  var c = document.getElementById('chat-msgs');
+  var row = document.createElement('div');
+  row.className = 'mr b'; row.id = 'typ';
+  var av = document.createElement('div'); av.className = 'mav'; av.textContent = '⚡';
+  var inner = document.createElement('div');
+  var typ = document.createElement('div'); typ.className = 'typing';
+  for (var i = 0; i < 3; i++) { var d = document.createElement('div'); d.className = 'dot'; typ.appendChild(d); }
+  inner.appendChild(typ); row.appendChild(av); row.appendChild(inner);
+  c.appendChild(row); c.scrollTop = c.scrollHeight;
 }
 
-function showTyping(){
-  var c=document.getElementById('chat-msgs');
-  var row=document.createElement('div');
-  row.className='msg-row b';
-  row.id='typ';
-  row.innerHTML='<div class="msg-av">&#9889;</div><div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
-  c.appendChild(row);
-  c.scrollTop=c.scrollHeight;
-}
-function rmTyping(){var e=document.getElementById('typ');if(e)e.remove();}
+function rmTyping() { var e = document.getElementById('typ'); if (e) e.remove(); }
 
-async function sendMsg(){
-  if(busy) return;
-  var inp=document.getElementById('chat-in');
-  var txt=inp.value.trim();
-  if(!txt) return;
-  inp.value='';
-  addBubble(txt,'u');
-  chatHist.push({role:'user',content:txt});
-  busy=true;
-  document.getElementById('chat-st-t').textContent='typing...';
+async function sendMsg() {
+  if (busy) return;
+  var inp = document.getElementById('ci');
+  var txt = inp.value.trim(); if (!txt) return;
+  inp.value = '';
+  addBubble(txt, 'u');
+  chatHist.push({role:'user', content:txt});
+  busy = true;
+  document.getElementById('cst').textContent = 'typing...';
   showTyping();
-  try{
-    if(!apiKey) throw new Error('API_KEY_MISSING');
-    var rep=await callClaude(buildSys(),txt,chatHist.slice(-10).slice(0,-1));
-    rmTyping();
-    addBubble(rep,'b');
-    chatHist.push({role:'assistant',content:rep});
-  } catch(e){
-    rmTyping();
-    if(e.message==='API_KEY_MISSING'){
-      addBubble('API key nahi hai!\n\nYellow banner mein apna Anthropic key paste karein.\nFree key: console.anthropic.com','b');
-    } else {
-      addBubble('Error: '+e.message,'b');
-    }
-  }
-  busy=false;
-  document.getElementById('chat-st-t').textContent=rows.length ? rows.length+' records loaded' : 'Demo mode';
-}
-
-function sc(el){document.getElementById('chat-in').value=el.textContent.trim();sendMsg();}
-
-function clearChat(){
-  chatHist=[];
-  document.getElementById('chat-msgs').innerHTML='';
-  addBubble('Chat cleared! Lucknow West demo data ready. Kuch bhi poochho.','b');
-}
-
-function addUrl(){
-  var url=document.getElementById('url-in').value.trim();
-  var label=document.getElementById('url-lbl').value.trim()||'Source';
-  if(!url || !url.startsWith('http')){alert('Enter a valid URL starting with http');return;}
-  document.getElementById('url-in').value='';
-  document.getElementById('url-lbl').value='';
-  fetchUrl(url,label);
-}
-
-function quickUrl(url,label){fetchUrl(url,label);}
-
-async function fetchUrl(url,label){
-  var id='u'+Date.now();
-  urlList.push({id:id,url:url,label:label,status:'loading'});
-  renderUrlList();
-  document.getElementById('fetch-st').textContent='Fetching: '+label+'...';
-  try{
-    var proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(url);
-    var r=await fetch(proxyUrl);
-    var d=await r.json();
-    if(!d.contents) throw new Error('No content returned');
-    var tmp=document.createElement('div');
-    tmp.innerHTML=d.contents;
-    tmp.querySelectorAll('script,style,nav,footer,header').forEach(function(e){e.remove();});
-    var text=(tmp.textContent||'').replace(/\s+/g,' ').trim().substring(0,8000);
-    if(text.length<80) throw new Error('Page too small or blocked');
-    var summary=text.substring(0,400)+'...';
-    if(apiKey){
-      try{
-        summary=await callClaude(
-          'Political analyst. Summarise in 100 words focusing on election data, voter demographics, political issues, constituency intelligence.',
-          'URL: '+url+'\nContent: '+text.substring(0,3500)
-        );
-      } catch(e2){}
-    }
-    knowledgeBase.push({id:id,url:url,label:label,text:text.substring(0,3000),summary:summary,wordCount:text.split(' ').length});
-    var u=urlList.find(function(u){return u.id===id;});
-    if(u) u.status='done';
-    renderUrlList();
-    renderKB();
-    document.getElementById('fetch-st').textContent='Added: "'+label+'" to knowledge base';
-    document.getElementById('kb-card').style.display='block';
-  } catch(e){
-    var u=urlList.find(function(u){return u.id===id;});
-    if(u) u.status='fail';
-    renderUrlList();
-    document.getElementById('fetch-st').textContent='Failed: '+e.message;
-  }
-}
-
-function renderUrlList(){
-  document.getElementById('url-list').innerHTML=urlList.map(function(u){
-    var st=u.status==='loading'?'Fetching...':u.status==='done'?'Done':'Failed';
-    return '<div class="url-item"><span class="url-text">'+u.label+' &mdash; '+u.url.substring(0,40)+'...</span><span class="url-status '+u.status+'">'+st+'</span><button class="url-rm" onclick="removeUrl(\''+u.id+'\')">&#215;</button></div>';
-  }).join('');
-}
-
-function removeUrl(id){
-  urlList=urlList.filter(function(u){return u.id!==id;});
-  knowledgeBase=knowledgeBase.filter(function(k){return k.id!==id;});
-  renderUrlList();
-  renderKB();
-  if(!knowledgeBase.length) document.getElementById('kb-card').style.display='none';
-}
-
-function renderKB(){
-  document.getElementById('kb-count').textContent=knowledgeBase.length+' sources';
-  document.getElementById('kb-list').innerHTML=knowledgeBase.map(function(k){
-    return '<div class="kb-item"><div class="kb-title">'+k.label+'</div><div class="kb-meta">'+k.wordCount+' words extracted</div><div class="kb-preview">'+k.summary+'</div></div>';
-  }).join('');
-}
-
-async function analyseKB(){
-  if(!knowledgeBase.length){alert('Add some URLs first');return;}
-  if(!apiKey){alert('Add API key first');return;}
-  var btn=event.target;
-  btn.disabled=true;btn.textContent='Analysing...';
-  try{
-    var content=knowledgeBase.map(function(k){return '['+k.label+']: '+k.text;}).join('\n\n---\n\n');
-    var rep=await callClaude(
-      'Political intelligence analyst for Lucknow West. Create a comprehensive brief: key issues, voter demographics, political dynamics, opportunities, risks.',
-      'Analyse '+knowledgeBase.length+' sources:\n\n'+content.substring(0,5000)
-    );
-    var el=document.getElementById('kb-analysis');
-    el.textContent=rep;
-    el.style.display='block';
-  } catch(e){alert('Error: '+e.message);}
-  btn.disabled=false;
-  btn.textContent='Analyse All with AI';
-}
-
-function loadDemo(){
-  var areas=[
-    {ward:'Ward 1 - Rajajipuram',area:'Rajajipuram',cp:['OBC','OBC','SC','General'],op:['Daily Labour','Shop Owner','Street Vendor','Govt Job'],ip:['Waterlogging','Road Repair','Unemployment','Electricity']},
-    {ward:'Ward 2 - Alambagh',area:'Alambagh',cp:['OBC','General','SC','Muslim'],op:['Shop Owner','Street Vendor','Transport','Student'],ip:['Traffic','Road Repair','Vendor Zone','Water Supply']},
-    {ward:'Ward 3 - Nishatganj',area:'Nishatganj',cp:['Muslim','Muslim','OBC','SC'],op:['Daily Labour','Shop Owner','Tailor','Student'],ip:['Unemployment','Healthcare','Sanitation','Roads']},
-    {ward:'Ward 4 - Tulsi Nagar',area:'Tulsi Nagar',cp:['Brahmin','Kayastha','Vaishya','General'],op:['Govt Job','Private Job','Business','Student'],ip:['Education','Water Supply','Electricity','Roads']},
-    {ward:'Ward 5 - Sadar',area:'Sadar',cp:['Muslim','Muslim','Muslim','OBC'],op:['Shop Owner','Artisan','Daily Labour','Tailor'],ip:['Healthcare','Road Repair','Drainage','Unemployment']},
-    {ward:'Ward 6 - Aminabad',area:'Aminabad',cp:['Muslim','Muslim','OBC','Vaishya'],op:['Trader','Shop Owner','Artisan'],ip:['Parking','Electricity','Infrastructure','Traffic']},
-    {ward:'Ward 7 - Naka Hindola',area:'Naka Hindola',cp:['OBC','SC','OBC'],op:['Daily Labour','Street Vendor','Rickshaw Puller'],ip:['Unemployment','Security','Roads','Healthcare']},
-    {ward:'Ward 8 - Vikas Nagar',area:'Vikas Nagar',cp:['General','OBC','Brahmin'],op:['Private Job','Govt Job','Business'],ip:['Water Supply','Roads','Education','Parks']}
-  ];
-  var sbc={
-    'Muslim':['Strongly For','Strongly For','Leaning For','Neutral'],
-    'OBC':['Leaning For','Neutral','Neutral','Leaning Against'],
-    'SC':['Leaning For','Neutral','Strongly For'],
-    'Brahmin':['Leaning Against','Neutral','Strongly Against'],
-    'Kayastha':['Leaning Against','Neutral'],
-    'Vaishya':['Neutral','Leaning Against'],
-    'General':['Neutral','Neutral','Leaning For']
-  };
-  var voted=['Yes','Yes','Yes','No','First Time'];
-  var income=['Below 5k','5k-10k','10k-20k','20k-50k','Above 50k'];
-  var mn=['Ramesh','Suresh','Mohammad','Akbar','Rajesh','Vijay','Anil','Sanjay','Amit','Ashok','Deepak','Rahul','Santosh','Munna','Bablu'];
-  var fn=['Sunita','Geeta','Fatima','Rekha','Meera','Asha','Sharda','Nazma','Radha','Anita','Seema','Kavita','Saira','Pooja','Rani'];
-  var sur=['Kumar','Singh','Khan','Yadav','Gupta','Sharma','Verma','Ansari','Patel','Mishra','Tiwari'];
-  var demo=[];
-  for(var i=0;i<200;i++){
-    var w=areas[Math.floor(Math.random()*areas.length)];
-    var g=Math.random()>0.45?'Male':'Female';
-    var nm=g==='Male'?mn:fn;
-    var c=w.cp[Math.floor(Math.random()*w.cp.length)];
-    var sp=sbc[c]||['Neutral'];
-    demo.push({
-      Name:nm[Math.floor(Math.random()*nm.length)]+' '+sur[Math.floor(Math.random()*sur.length)],
-      Age:18+Math.floor(Math.random()*55),
-      Gender:g,
-      Caste:c,
-      Ward:w.ward,
-      Area:w.area,
-      Occupation:w.op[Math.floor(Math.random()*w.op.length)],
-      Monthly_Income:income[Math.floor(Math.random()*income.length)],
-      Family_Size:2+Math.floor(Math.random()*7),
-      Problem:w.ip[Math.floor(Math.random()*w.ip.length)],
-      Voted_Last:voted[Math.floor(Math.random()*voted.length)],
-      Support:sp[Math.floor(Math.random()*sp.length)],
-      Candidate_Awareness:['Knows well','Heard of','Not aware'][Math.floor(Math.random()*3)],
-      Phone:'98'+Math.floor(10000000+Math.random()*89999999)
+  try {
+    var result = await api('chat', {
+      message: txt,
+      history: chatHist.slice(-8).slice(0,-1),
+      constituencyData: rows.slice(0,20),
+      knowledgeBase: kb
     });
+    rmTyping();
+    addBubble(result.reply, 'b');
+    chatHist.push({role:'assistant', content:result.reply});
+  } catch(e) {
+    rmTyping();
+    addBubble('Error: ' + e.message + '\n\nPlease try again.', 'b');
   }
-  rows=demo;
-  fields=Object.keys(demo[0]);
-  dataSource='demo';
-  updateUI();
-  renderPreview();
-  renderFieldTags();
-  renderManualForm();
-  document.getElementById('kobo-sync-card').style.display='block';
-  document.getElementById('kobo-forms-card').style.display='block';
-  document.getElementById('forms-list').innerHTML='<div style="padding:7px 10px;background:var(--bg);border-radius:7px;border:1px solid #416FBA30"><div style="font-size:11px;font-weight:600">Demo: Lucknow West Survey 2025</div><div style="font-size:10px;color:var(--text3)">200 voter profiles across 8 wards</div></div>';
-  addSyncLog('['+nt()+'] Demo loaded: 200 Lucknow West voter profiles');
-  addBubble('Demo data loaded!\n\n200 voter profiles across 8 wards: Rajajipuram, Alambagh, Nishatganj, Tulsi Nagar, Sadar, Aminabad, Naka Hindola, Vikas Nagar.\n\nAb poochho kuch bhi!','b');
+  busy = false;
+  document.getElementById('cst').textContent = rows.length ? rows.length + ' records loaded' : 'Ready';
 }
 
-function renderLKO(){
-  if(communityChart){communityChart.destroy();communityChart=null;}
-  var ctx=document.getElementById('community-chart');
-  if(!ctx) return;
-  communityChart=new Chart(ctx.getContext('2d'),{
-    type:'doughnut',
-    data:{
-      labels:['Muslim 35%','OBC Hindu 30%','Brahmin/Kayastha/Vaishya 20%','SC 12%','Others 3%'],
-      datasets:[{data:[35,30,20,12,3],backgroundColor:COLS.map(function(c){return c+'cc';}),borderColor:COLS,borderWidth:2}]
+function sc(el) { document.getElementById('ci').value = el.textContent.trim(); sendMsg(); }
+
+function clearChat() {
+  chatHist = [];
+  document.getElementById('chat-msgs').innerHTML = '';
+  addBubble('Chat cleared! Kuch bhi poochho.', 'b');
+}
+
+// ═══════════════════════════════════════════════════════════
+// SCORE
+// ═══════════════════════════════════════════════════════════
+async function calcScore() {
+  var btn = document.getElementById('score-btn');
+  btn.disabled = true; btn.textContent = 'Calculating...';
+  try {
+    var result = await api('score', {voterData: rows});
+    var s = result.score;
+    var arc = document.getElementById('score-arc');
+    arc.style.strokeDashoffset = 289.03 - (289.03 * s / 100);
+    arc.style.stroke = s >= 65 ? '#10b981' : s >= 45 ? '#f0a500' : '#ef4444';
+    document.getElementById('score-num').textContent = s;
+    document.getElementById('score-verdict').textContent = s >= 65 ? 'Strong Position' : s >= 45 ? 'Competitive - Action Required' : 'Critical - Immediate Action Needed';
+    document.getElementById('score-explain').textContent = s >= 65 ? 'Above winning threshold. Consolidate base.' : s >= 45 ? 'Within range but thin. 3-4 actions can push you over.' : 'Significant ground needed. Focus on top issues.';
+    var bd = result.breakdown;
+    var factors = [
+      {l:'Voter Support', v: bd.support || 38, c:'#10b981'},
+      {l:'Past Turnout',  v: bd.turnout || 65, c:'#2563eb'},
+      {l:'Awareness',     v: bd.awareness || 42, c:'#f0a500'},
+      {l:'Community Alignment', v: Math.max(s-8,10), c:'#7c3aed'}
+    ];
+    document.getElementById('score-factors-card').style.display = 'block';
+    var sf = document.getElementById('score-factors');
+    sf.innerHTML = '';
+    factors.forEach(function(f) {
+      var wrap = document.createElement('div'); wrap.style.marginBottom = '10px';
+      var top = document.createElement('div'); top.style.cssText = 'display:flex;justify-content:space-between;margin-bottom:3px';
+      var lbl = document.createElement('span'); lbl.style.cssText = 'font-size:11px;color:var(--text2)'; lbl.textContent = f.l;
+      var val = document.createElement('span'); val.style.cssText = 'font-size:11px;font-weight:700;color:' + f.c; val.textContent = f.v + '%';
+      top.appendChild(lbl); top.appendChild(val);
+      var pw = document.createElement('div'); pw.className = 'pw';
+      var pb = document.createElement('div'); pb.className = 'pb'; pb.style.cssText = 'width:' + f.v + '%;background:' + f.c;
+      pw.appendChild(pb); wrap.appendChild(top); wrap.appendChild(pw); sf.appendChild(wrap);
+    });
+    if (result.explanation) {
+      var el = document.getElementById('score-ai'); el.textContent = result.explanation; el.style.display = 'block';
+    }
+  } catch(e) { alert('Score error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Recalculate';
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════
+async function getActions() {
+  var btn = document.getElementById('actions-btn');
+  btn.disabled = true; btn.textContent = 'Generating...';
+  try {
+    var result = await api('actions', {voterData: rows, constituency: 'Lucknow West'});
+    var parts = result.actions.split(/ACTION \d+:/i).filter(function(p) { return p.trim(); });
+    var list = document.getElementById('actions-list');
+    list.innerHTML = '';
+    if (parts.length > 0) {
+      parts.forEach(function(p, i) {
+        var lines = p.trim().split('\n').filter(function(l) { return l.trim(); });
+        var title = lines[0] || ('Action ' + (i+1));
+        var body = lines.slice(1).join('\n');
+        var hi = body.toLowerCase().indexOf('high') >= 0;
+        var card = document.createElement('div'); card.className = 'ac';
+        var top = document.createElement('div'); top.style.cssText = 'display:flex;align-items:flex-start;gap:8px;margin-bottom:6px';
+        var num = document.createElement('div'); num.className = 'an'; num.textContent = i+1;
+        var ttl = document.createElement('div'); ttl.className = 'atitle'; ttl.textContent = title;
+        top.appendChild(num); top.appendChild(ttl); card.appendChild(top);
+        var bd = document.createElement('div'); bd.className = 'abody'; bd.innerHTML = body.replace(/\n/g, '<br>'); card.appendChild(bd);
+        var imp = document.createElement('div'); imp.className = 'imp ' + (hi ? 'imp-h' : 'imp-m'); imp.textContent = hi ? 'HIGH IMPACT' : 'MEDIUM IMPACT'; card.appendChild(imp);
+        list.appendChild(card);
+      });
+    } else {
+      var d = document.createElement('div'); d.className = 'ai-out'; d.textContent = result.actions; list.appendChild(d);
+    }
+  } catch(e) { alert('Actions error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Regenerate';
+}
+
+// ═══════════════════════════════════════════════════════════
+// PREDICT
+// ═══════════════════════════════════════════════════════════
+async function predict() {
+  var cand = document.getElementById('cand').value.trim();
+  if (!cand) { alert('Enter candidate name'); return; }
+  var party = document.getElementById('cparty').value.trim();
+  var btn = document.getElementById('pred-btn');
+  btn.disabled = true; btn.textContent = 'Predicting...';
+  try {
+    var result = await api('predict', {candidateName:cand, party:party, voterData:rows, constituency:'Lucknow West'});
+    var el = document.getElementById('pred-result'); el.textContent = result.prediction; el.style.display = 'block';
+  } catch(e) { alert('Predict error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Rerun';
+}
+
+async function genScript() {
+  var cand = document.getElementById('cand').value.trim();
+  if (!cand) { alert('Enter candidate name above first'); return; }
+  var seg = document.getElementById('seg').value.trim();
+  if (!seg) { alert('Enter voter segment'); return; }
+  var party = document.getElementById('cparty').value.trim();
+  var btn = document.getElementById('script-btn');
+  btn.disabled = true; btn.textContent = 'Writing...';
+  try {
+    var msg = 'Write 2-3 min Hinglish call script for volunteer calling ' + seg + ' voters in Lucknow West for ' + cand + (party ? ' (' + party + ')' : '') + '. Warm intro, reference their area issue, candidate promise, handle 1 objection, ask for support, polite close. Human not scripted.';
+    var result = await api('chat', {message: msg, history: []});
+    var el = document.getElementById('script-result'); el.textContent = result.reply; el.style.display = 'block';
+  } catch(e) { alert('Script error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'New Script';
+}
+
+// ═══════════════════════════════════════════════════════════
+// IVRS
+// ═══════════════════════════════════════════════════════════
+async function genIVRS() {
+  var voter = document.getElementById('ivrs-voter').value.trim() || 'Ramesh Yadav, Rajajipuram, OBC, waterlogging issue';
+  var cand = document.getElementById('ivrs-cand').value.trim() || 'the Candidate';
+  var btn = document.getElementById('ivrs-btn');
+  btn.disabled = true; btn.textContent = 'Generating...';
+  try {
+    var msg = 'Generate a realistic IVRS call transcript (6-8 exchanges). Voter: ' + voter + '. Calling for: ' + cand + ' in Lucknow West. Format each line as: AI: [text] or Voter: [text]. Show AI referencing voter name, ward, specific issue, candidate promise. Use natural Hinglish.';
+    var result = await api('chat', {message: msg, history: []});
+    var el = document.getElementById('ivrs-output');
+    el.innerHTML = '';
+    var lines = result.reply.split('\n').filter(function(l) { return l.trim(); });
+    lines.forEach(function(line) {
+      var div = document.createElement('div'); div.className = 'ivrs-line';
+      var sp = document.createElement('span'); sp.style.fontWeight = '600';
+      var txt = document.createTextNode('');
+      if (line.startsWith('AI:')) {
+        sp.style.color = 'var(--blue)'; sp.textContent = 'AI: ';
+        txt = document.createTextNode(line.substring(3));
+      } else if (line.startsWith('Voter:')) {
+        sp.style.color = 'var(--green)'; sp.textContent = 'Voter: ';
+        txt = document.createTextNode(line.substring(6));
+      } else {
+        sp.style.color = 'var(--text3)'; txt = document.createTextNode(line);
+      }
+      div.appendChild(sp); div.appendChild(txt); el.appendChild(div);
+    });
+    el.style.display = 'block';
+  } catch(e) { alert('IVRS error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Generate Demo Call';
+}
+
+// ═══════════════════════════════════════════════════════════
+// LUCKNOW DATA
+// ═══════════════════════════════════════════════════════════
+function renderLKO() {
+  if (comChart) { comChart.destroy(); comChart = null; }
+  var ctx = document.getElementById('community-chart');
+  if (!ctx) return;
+  comChart = new Chart(ctx.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Muslim 35%','OBC Hindu 30%','Brahmin/Kayastha/Vaishya 20%','SC 12%','Others 3%'],
+      datasets: [{data:[35,30,20,12,3], backgroundColor:COLS.map(function(c){return c+'cc';}), borderColor:COLS, borderWidth:2}]
     },
     options:{responsive:true,plugins:{legend:{position:'right',labels:{color:'#94a3b8',font:{size:10},padding:8}}}}
   });
-  var issues=[
+  var issues = [
     {cat:'Infrastructure',color:'#ef4444',t:'Waterlogging in Rajajipuram — 3rd consecutive monsoon',m:'40,000+ residents affected. Ward 1 top complaint.'},
-    {cat:'Economy',color:'#f0a500',t:'800 street vendors displaced from Alambagh market',m:'Weekly market vendors demand permanent vending zone.'},
-    {cat:'Metro',color:'#2563eb',t:'Lucknow Metro Phase 2 — Alambagh extension proposed',m:'High public interest. Transport game-changer for west Lucknow.'},
-    {cat:'Healthcare',color:'#10b981',t:'Primary health centre non-functional in Sadar',m:'Muslim-majority area worst hit. 6+ months without PHC.'},
-    {cat:'Education',color:'#7c3aed',t:'60% teacher vacancies in govt schools — Nishatganj',m:'Parents shifting to private schools. Major family issue.'},
-    {cat:'Employment',color:'#ea580c',t:'55% youth unemployment in Naka Hindola (18-25 yr)',m:'OBC and SC youth most affected. High political potential.'},
-    {cat:'Governance',color:'#06b6d4',t:'40% of MLA development fund projects incomplete',m:'Key accountability issue for 2027 elections.'}
+    {cat:'Economy',color:'#f0a500',t:'800 street vendors displaced from Alambagh market',m:'Demand for permanent vending zone.'},
+    {cat:'Metro',color:'#2563eb',t:'Lucknow Metro Phase 2 — Alambagh extension proposed',m:'High public interest. Transport game-changer.'},
+    {cat:'Healthcare',color:'#10b981',t:'Primary health centre non-functional in Sadar',m:'Muslim-majority area worst hit. 6+ months.'},
+    {cat:'Education',color:'#7c3aed',t:'60% teacher vacancies in govt schools — Nishatganj',m:'Parents shifting to private schools.'},
+    {cat:'Employment',color:'#ea580c',t:'55% youth unemployment in Naka Hindola (18-25 yr)',m:'OBC and SC youth most affected.'},
+    {cat:'Governance',color:'#06b6d4',t:'40% of MLA development fund projects incomplete',m:'Key accountability issue for 2027.'}
   ];
-  var el=document.getElementById('lko-issues');
-  if(el){
-    el.innerHTML=issues.map(function(n){
-      return '<div class="news-item"><div class="news-cat" style="background:'+n.color+'20;color:'+n.color+'">'+n.cat+'</div><div class="news-title">'+n.t+'</div><div class="news-meta">'+n.m+'</div></div>';
-    }).join('');
+  var el = document.getElementById('lko-issues');
+  if (!el) return;
+  el.innerHTML = '';
+  issues.forEach(function(n) {
+    var div = document.createElement('div'); div.className = 'ni';
+    var cat = document.createElement('div'); cat.className = 'nc';
+    cat.style.cssText = 'background:' + n.color + '20;color:' + n.color; cat.textContent = n.cat;
+    var title = document.createElement('div'); title.className = 'nt2'; title.textContent = n.t;
+    var meta = document.createElement('div'); meta.className = 'nm'; meta.textContent = n.m;
+    div.appendChild(cat); div.appendChild(title); div.appendChild(meta);
+    el.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// WEB FETCH
+// ═══════════════════════════════════════════════════════════
+function addUrl() {
+  var url = document.getElementById('url-in').value.trim();
+  var label = document.getElementById('url-lbl').value.trim() || 'Source';
+  if (!url || !url.startsWith('http')) { alert('Enter a valid URL starting with http'); return; }
+  document.getElementById('url-in').value = '';
+  document.getElementById('url-lbl').value = '';
+  fetchUrl(url, label);
+}
+
+function quickUrl(url, label) { fetchUrl(url, label); }
+
+async function fetchUrl(url, label) {
+  var id = 'u' + Date.now();
+  urlList.push({id:id, url:url, label:label, status:'loading'});
+  renderUrlList();
+  document.getElementById('fetch-st').textContent = 'Fetching: ' + label + '...';
+  try {
+    var result = await api('webfetch', {url:url, label:label});
+    kb.push({id:id, url:url, label:label, summary:result.summary, text:result.text, wordCount:result.wordCount});
+    var u = urlList.find(function(u){return u.id===id;});
+    if (u) u.status = 'done';
+    renderUrlList(); renderKB();
+    document.getElementById('fetch-st').textContent = 'Added: ' + label;
+    document.getElementById('kb-card').style.display = 'block';
+  } catch(e) {
+    var u = urlList.find(function(u){return u.id===id;});
+    if (u) u.status = 'fail';
+    renderUrlList();
+    document.getElementById('fetch-st').textContent = 'Failed: ' + e.message;
   }
 }
 
-async function calcScore(){
-  var btn=document.getElementById('score-btn');
-  btn.disabled=true;
-  btn.textContent='Calculating...';
-  var s=computeScore();
-  var circ=289.03;
-  var offset=circ-(circ*(s/100));
-  var arc=document.getElementById('score-arc');
-  arc.style.strokeDashoffset=offset;
-  if(s>=65){ arc.style.stroke='#10b981'; }
-  else if(s>=45){ arc.style.stroke='#f0a500'; }
-  else { arc.style.stroke='#ef4444'; }
-  document.getElementById('score-num').textContent=s;
-  var verd='';
-  if(s>=65){ verd='Strong Position'; }
-  else if(s>=45){ verd='Competitive - Action Required'; }
-  else { verd='Critical - Immediate Action Needed'; }
-  document.getElementById('score-verdict').textContent=verd;
-  document.getElementById('score-explain').textContent=s>=65?'Above winning threshold. Consolidate base, guard swing wards.':s>=45?'Within range but thin margin. 3-4 targeted actions can push you over.':'Significant ground needed. Focus on top issues in swing wards.';
-  var factors=[
-    {l:'Voter Support',v:rows.length ? Math.round(rows.filter(function(r){return String(r.Support||'').toLowerCase().indexOf('for')>=0;}).length/rows.length*100) : 38,c:'#10b981'},
-    {l:'Past Turnout',v:rows.length ? Math.round(rows.filter(function(r){return String(r.Voted_Last||'').toLowerCase()==='yes';}).length/rows.length*100) : 65,c:'#2563eb'},
-    {l:'Issue Engagement',v:rows.length ? Math.round(rows.filter(function(r){return r.Problem;}).length/rows.length*100) : 82,c:'#f0a500'},
-    {l:'Name Recognition',v:rows.length ? Math.round(rows.filter(function(r){return String(r.Candidate_Awareness||'').toLowerCase().indexOf('knows')>=0;}).length/rows.length*100) : 42,c:'#7c3aed'},
-    {l:'Community Alignment',v:Math.max(s-8,10),c:'#06b6d4'}
+function renderUrlList() {
+  var el = document.getElementById('url-list');
+  el.innerHTML = '';
+  urlList.forEach(function(u) {
+    var div = document.createElement('div'); div.style.cssText = 'display:flex;align-items:center;gap:7px;padding:7px 9px;background:var(--bg);border:1px solid var(--border);border-radius:7px;margin-bottom:5px;font-size:11px';
+    var txt = document.createElement('span'); txt.style.cssText = 'flex:1;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap'; txt.textContent = u.label + ' — ' + u.url.substring(0,40) + '...';
+    var st = document.createElement('span');
+    var stColors = {loading:'#f0a500', done:'#10b981', fail:'#ef4444'};
+    st.style.cssText = 'font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px;background:' + stColors[u.status] + '12;color:' + stColors[u.status];
+    st.textContent = u.status === 'loading' ? 'Fetching...' : u.status === 'done' ? 'Done' : 'Failed';
+    div.appendChild(txt); div.appendChild(st); el.appendChild(div);
+  });
+}
+
+function renderKB() {
+  document.getElementById('kb-count').textContent = kb.length + ' sources';
+  var el = document.getElementById('kb-list'); el.innerHTML = '';
+  kb.forEach(function(k) {
+    var div = document.createElement('div'); div.style.cssText = 'padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;margin-bottom:5px';
+    var title = document.createElement('div'); title.style.cssText = 'font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px'; title.textContent = k.label;
+    var meta = document.createElement('div'); meta.style.cssText = 'font-size:10px;color:var(--text3)'; meta.textContent = k.wordCount + ' words extracted';
+    var prev = document.createElement('div'); prev.style.cssText = 'font-size:10px;color:var(--text3);margin-top:3px'; prev.textContent = k.summary.substring(0,150) + '...';
+    div.appendChild(title); div.appendChild(meta); div.appendChild(prev); el.appendChild(div);
+  });
+}
+
+async function analyseKB() {
+  if (!kb.length) { alert('Add some URLs first'); return; }
+  var btn = event.target; btn.disabled = true; btn.textContent = 'Analysing...';
+  try {
+    var result = await api('chat', {message: 'Analyse all ' + kb.length + ' sources and create a comprehensive political intelligence brief for Lucknow West: key issues, voter demographics, political dynamics, opportunities, risks.', knowledgeBase: kb, history: []});
+    var el = document.getElementById('kb-analysis'); el.textContent = result.reply; el.style.display = 'block';
+  } catch(e) { alert('Error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Analyse All with AI';
+}
+
+// ═══════════════════════════════════════════════════════════
+// DEMO DATA
+// ═══════════════════════════════════════════════════════════
+function loadDemo() {
+  var areas = [
+    {ward:'Ward 1 - Rajajipuram',area:'Rajajipuram',cp:['OBC','OBC','SC'],op:['Daily Labour','Shop Owner','Street Vendor'],ip:['Waterlogging','Road Repair','Unemployment']},
+    {ward:'Ward 2 - Alambagh',area:'Alambagh',cp:['OBC','General','Muslim'],op:['Shop Owner','Street Vendor','Transport'],ip:['Traffic','Road Repair','Vendor Zone']},
+    {ward:'Ward 3 - Nishatganj',area:'Nishatganj',cp:['Muslim','Muslim','OBC'],op:['Daily Labour','Shop Owner','Tailor'],ip:['Unemployment','Healthcare','Sanitation']},
+    {ward:'Ward 4 - Tulsi Nagar',area:'Tulsi Nagar',cp:['Brahmin','Kayastha','Vaishya'],op:['Govt Job','Private Job','Business'],ip:['Education','Water Supply','Electricity']},
+    {ward:'Ward 5 - Sadar',area:'Sadar',cp:['Muslim','Muslim','Muslim'],op:['Shop Owner','Artisan','Daily Labour'],ip:['Healthcare','Road Repair','Drainage']},
+    {ward:'Ward 6 - Aminabad',area:'Aminabad',cp:['Muslim','Muslim','Vaishya'],op:['Trader','Shop Owner','Artisan'],ip:['Parking','Electricity','Traffic']},
+    {ward:'Ward 7 - Naka Hindola',area:'Naka Hindola',cp:['OBC','SC','OBC'],op:['Daily Labour','Street Vendor','Rickshaw Puller'],ip:['Unemployment','Security','Roads']},
+    {ward:'Ward 8 - Vikas Nagar',area:'Vikas Nagar',cp:['General','OBC','Brahmin'],op:['Private Job','Govt Job','Business'],ip:['Water Supply','Roads','Education']}
   ];
-  document.getElementById('score-factors-card').style.display='block';
-  document.getElementById('score-factors').innerHTML=factors.map(function(f){
-    return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;color:var(--text2)">'+f.l+'</span><span style="font-size:11px;font-weight:700;color:'+f.c+'">'+f.v+'%</span></div><div class="prog-wrap"><div class="prog-bar" style="width:'+f.v+'%;background:'+f.c+'"></div></div></div>';
-  }).join('');
-  if(apiKey){
-    try{
-      var rep=await callClaude(buildSys(),'Popularity score is '+s+'/100. Give a sharp 3-paragraph analysis: what this means for Lucknow West, what is driving it, and 2 immediate actions. Be specific.');
-      var el=document.getElementById('score-ai');
-      el.textContent=rep;
-      el.style.display='block';
-    } catch(e2){}
-  }
-  btn.disabled=false;
-  btn.textContent='Recalculate';
-}
-
-function computeScore(){
-  if(!rows.length) return 54;
-  var tot=rows.length;
-  var forV=rows.filter(function(r){var s=String(r.Support||'').toLowerCase();return s.indexOf('for')>=0||s.indexOf('strong')>=0;}).length;
-  var voted=rows.filter(function(r){return String(r.Voted_Last||'').toLowerCase()==='yes';}).length;
-  var aware=rows.filter(function(r){return String(r.Candidate_Awareness||'').toLowerCase().indexOf('knows')>=0;}).length;
-  return Math.min(Math.max(Math.round((forV/tot*40)+(voted/tot*25)+(aware/tot*20)+13),18),94);
-}
-
-async function getActions(){
-  if(!apiKey){alert('Add your API key first (yellow banner at top)');return;}
-  var btn=document.getElementById('actions-btn');
-  btn.disabled=true;
-  btn.textContent='Generating...';
-  var ctx=rows.length ? 'Survey ('+rows.length+' records): '+JSON.stringify(rows.slice(0,6)) : 'Using constituency intelligence only.';
-  try{
-    var rep=await callClaude(buildSys(),
-      'Generate exactly 5 hyperlocal micro-actions for Lucknow West. Format each as:\nACTION 1: [title]\nArea: [specific ward/mohalla]\nTarget: [community]\nWhat: [action]\nWhy: [reason]\nVotes: [impact]\n\n'+ctx
-    );
-    var parts=rep.split(/ACTION \d+:/i).filter(function(p){return p.trim();});
-    var list=document.getElementById('actions-list');
-    if(parts.length>0){
-      list.innerHTML=parts.map(function(p,i){
-        var lines=p.trim().split('\n').filter(function(l){return l.trim();});
-        var title=lines[0]||('Action '+(i+1));
-        var body=lines.slice(1).join('\n');
-        var hi=body.toLowerCase().indexOf('high')>=0||body.indexOf('lakh')>=0;
-        return '<div class="action-item"><div class="action-top"><div class="action-n">'+(i+1)+'</div><div class="action-title">'+title+'</div></div><div class="action-body">'+body.replace(/\n/g,'<br>')+'</div><div class="impact impact-'+(hi?'h':'m')+'">'+(hi?'HIGH IMPACT':'MEDIUM IMPACT')+'</div></div>';
-      }).join('');
-    } else {
-      list.innerHTML='<div class="ai-out">'+rep+'</div>';
-    }
-  } catch(e){alert('Error: '+e.message);}
-  btn.disabled=false;
-  btn.textContent='Regenerate';
-}
-
-async function predict(){
-  if(!apiKey){alert('Add API key first');return;}
-  var cand=document.getElementById('cand').value.trim();
-  if(!cand){alert('Enter candidate name');return;}
-  var party=document.getElementById('cparty').value.trim();
-  var btn=document.getElementById('pred-btn');
-  btn.disabled=true;btn.textContent='Predicting...';
-  try{
-    var rep=await callClaude(buildSys(),
-      'Predict for '+cand+(party?' ('+party+')':' Independent')+' in Lucknow West. 5 sections:\n1. VOTE SHARE: specific %\n2. COMMUNITY BREAKDOWN\n3. WARD ANALYSIS\n4. SWING FACTORS\n5. WINNING STRATEGY'
-    );
-    var el=document.getElementById('pred-result');
-    el.textContent=rep;
-    el.style.display='block';
-  } catch(e){alert('Error: '+e.message);}
-  btn.disabled=false;btn.textContent='Rerun';
-}
-
-async function genScript(){
-  if(!apiKey){alert('Add API key first');return;}
-  var cand=document.getElementById('cand').value.trim();
-  if(!cand){alert('Enter candidate name above first');return;}
-  var seg=document.getElementById('seg').value.trim();
-  if(!seg){alert('Enter voter segment');return;}
-  var party=document.getElementById('cparty').value.trim();
-  var btn=document.getElementById('script-btn');
-  btn.disabled=true;btn.textContent='Writing...';
-  try{
-    var rep=await callClaude(
-      'Expert Indian campaign writer. Write natural Hinglish phone scripts for Lucknow West voters.',
-      'Write 2-3 min Hinglish call script for volunteer calling '+seg+' voters in Lucknow West for '+cand+(party?' ('+party+')':'')+'. Include: warm intro, reference their area issue, candidate promise, handle 1 objection, ask for support, polite close. Human and personal, not scripted.'
-    );
-    var el=document.getElementById('script-result');
-    el.textContent=rep;
-    el.style.display='block';
-  } catch(e){alert('Error: '+e.message);}
-  btn.disabled=false;btn.textContent='New Script';
-}
-
-async function genIVRSDemo(){
-  if(!apiKey){alert('Add API key first');return;}
-  var voter=document.getElementById('ivrs-voter').value.trim()||'Ramesh Yadav, Ward 1 Rajajipuram, OBC, primary issue: waterlogging';
-  var cand=document.getElementById('ivrs-cand').value.trim()||'Candidate';
-  var btn=document.getElementById('ivrs-gen-btn');
-  btn.disabled=true;btn.textContent='Generating...';
-  try{
-    var rep=await callClaude(
-      'You are simulating a real IVRS AI phone call for Lucknow West constituency. Create a realistic back-and-forth conversation transcript between the AI (calling on behalf of the candidate) and the voter. The AI knows everything about the voter from the survey data. Make it 6-8 exchanges. Use Hinglish naturally. Show how AI handles objections and personalises based on the voter profile.',
-      'Generate a realistic IVRS call transcript.\nVoter profile: '+voter+'\nCalling on behalf of: '+cand+'\nConstituency: Lucknow West\n\nFormat as:\nAI: [what AI says]\nVoter: [realistic voter response]\n...\n\nShow the AI referencing the voter name, ward, specific issue, and candidate promise for that area.'
-    );
-    var el=document.getElementById('ivrs-output');
-    el.innerHTML='';
-    var lines=rep.split('\n').filter(function(l){return l.trim();});
-    lines.forEach(function(line){
-      var div=document.createElement('div');
-      div.className='ivrs-line';
-      if(line.startsWith('AI:')){
-        div.innerHTML='<span style="color:var(--blue);font-weight:600">AI: </span>'+line.substring(3);
-      } else if(line.startsWith('Voter:')){
-        div.innerHTML='<span style="color:var(--green);font-weight:600">Voter: </span>'+line.substring(6);
-      } else {
-        div.innerHTML='<span style="color:var(--text3)">'+line+'</span>';
-      }
-      el.appendChild(div);
+  var sbc = {Muslim:['Strongly For','Strongly For','Leaning For','Neutral'],OBC:['Leaning For','Neutral','Neutral','Leaning Against'],SC:['Leaning For','Neutral','Strongly For'],Brahmin:['Leaning Against','Neutral','Strongly Against'],Kayastha:['Leaning Against','Neutral'],Vaishya:['Neutral','Leaning Against'],General:['Neutral','Neutral','Leaning For']};
+  var voted = ['Yes','Yes','Yes','No','First Time'];
+  var income = ['Below 5k','5k-10k','10k-20k','20k-50k','Above 50k'];
+  var mn = ['Ramesh','Suresh','Mohammad','Akbar','Rajesh','Vijay','Anil','Sanjay','Amit','Ashok'];
+  var fn = ['Sunita','Geeta','Fatima','Rekha','Meera','Asha','Sharda','Nazma','Radha','Anita'];
+  var sur = ['Kumar','Singh','Khan','Yadav','Gupta','Sharma','Verma','Ansari','Patel','Mishra'];
+  var demo = [];
+  for (var i = 0; i < 200; i++) {
+    var w = areas[Math.floor(Math.random()*areas.length)];
+    var g = Math.random() > 0.45 ? 'Male' : 'Female';
+    var nm = g === 'Male' ? mn : fn;
+    var c = w.cp[Math.floor(Math.random()*w.cp.length)];
+    var sp = sbc[c] || ['Neutral'];
+    demo.push({
+      Name: nm[Math.floor(Math.random()*nm.length)] + ' ' + sur[Math.floor(Math.random()*sur.length)],
+      Age: 18 + Math.floor(Math.random()*55), Gender: g, Caste: c,
+      Ward: w.ward, Area: w.area,
+      Occupation: w.op[Math.floor(Math.random()*w.op.length)],
+      Monthly_Income: income[Math.floor(Math.random()*income.length)],
+      Family_Size: 2 + Math.floor(Math.random()*7),
+      Problem: w.ip[Math.floor(Math.random()*w.ip.length)],
+      Voted_Last: voted[Math.floor(Math.random()*voted.length)],
+      Support: sp[Math.floor(Math.random()*sp.length)],
+      Candidate_Awareness: ['Knows well','Heard of','Not aware'][Math.floor(Math.random()*3)],
+      Phone: '98' + Math.floor(10000000 + Math.random()*89999999)
     });
-    el.style.display='block';
-  } catch(e){alert('Error: '+e.message);}
-  btn.disabled=false;btn.textContent='Generate Demo Call';
+  }
+  rows = demo; fields = Object.keys(demo[0]);
+  updateUI();
+  var sb = document.getElementById('src-badge'); sb.textContent = 'LKO West Demo'; sb.style.display = 'inline';
 }
 
-function tp(id){var e=document.getElementById(id);e.type=e.type==='password'?'text':'password';}
+// ═══════════════════════════════════════════════════════════
+// FIELD WORKER
+// ═══════════════════════════════════════════════════════════
+async function saveVoter() {
+  var voter = {
+    Name: document.getElementById('fw-name').value,
+    Age: document.getElementById('fw-age').value,
+    Gender: document.getElementById('fw-gender').value,
+    Caste: document.getElementById('fw-caste').value,
+    Ward: document.getElementById('fw-ward').value,
+    Occupation: document.getElementById('fw-occ').value,
+    Problem: document.getElementById('fw-prob').value,
+    Support: document.getElementById('fw-support').value,
+    Phone: document.getElementById('fw-phone').value,
+    Voted_Last: document.getElementById('fw-voted').value,
+    Candidate_Awareness: 'Not aware', savedByRole: userRole
+  };
+  if (!voter.Name || !voter.Ward) { alert('Name and Ward are required'); return; }
+  var btn = document.getElementById('fw-save-btn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    await api('voters', {voters: [voter]});
+    rows.push(voter); updateUI();
+    ['fw-name','fw-age','fw-phone'].forEach(function(id) { document.getElementById(id).value = ''; });
+    ['fw-gender','fw-caste','fw-ward','fw-occ','fw-prob','fw-support','fw-voted'].forEach(function(id) { document.getElementById(id).value = ''; });
+    var st = document.getElementById('fw-status'); st.textContent = 'Record saved successfully!'; st.className = 'ok';
+    setTimeout(function() { st.textContent = ''; }, 3000);
+    loadFWProgress();
+  } catch(e) {
+    var st = document.getElementById('fw-status'); st.textContent = 'Error: ' + e.message; st.className = 'err';
+  }
+  btn.disabled = false; btn.textContent = 'Save Voter Record';
+}
 
-async function koboConnect(){
-  var tok=document.getElementById('kobo-tok').value.trim();
-  if(!tok){setKSt('Enter token first','err');return;}
-  koboTok=tok;koboSrv=document.getElementById('kobo-srv').value;
-  var btn=document.getElementById('kobo-btn');
-  btn.disabled=true;btn.textContent='Connecting...';
+function loadFWProgress() {
+  var el = document.getElementById('fw-progress');
+  var today = rows.filter(function(r) { return r.savedByRole === 'field_worker'; }).length;
+  el.innerHTML = '';
+  var big = document.createElement('div'); big.style.cssText = 'font-size:22px;font-weight:800;color:var(--gold)'; big.textContent = today;
+  var sub = document.createElement('div'); sub.style.cssText = 'font-size:11px;color:var(--text3)'; sub.textContent = 'Records saved today';
+  el.appendChild(big); el.appendChild(sub);
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════════════════════════
+async function createUser() {
+  var name = document.getElementById('adm-name').value.trim();
+  var email = document.getElementById('adm-email').value.trim();
+  var pass = document.getElementById('adm-pass').value;
+  var role = document.getElementById('adm-role').value;
+  var ward = document.getElementById('adm-ward').value;
+  if (!email || !pass || !role) { alert('Email, password and role required'); return; }
+  var btn = document.getElementById('adm-btn');
+  btn.disabled = true; btn.textContent = 'Creating...';
+  try {
+    var result = await api('users', {name:name, email:email, password:pass, role:role, ward:ward, candidateId:'lko_west_001'});
+    var st = document.getElementById('adm-status'); st.textContent = 'Created: ' + email + ' as ' + role; st.className = 'ok';
+    ['adm-name','adm-email','adm-pass'].forEach(function(id) { document.getElementById(id).value = ''; });
+  } catch(e) {
+    var st = document.getElementById('adm-status'); st.textContent = 'Error: ' + e.message; st.className = 'err';
+  }
+  btn.disabled = false; btn.textContent = 'Create User';
+}
+
+function loadAdminStats() {
+  var el = document.getElementById('adm-stats'); el.innerHTML = '';
+  [{v:rows.length,l:'Voter Records'},{v:kb.length,l:'KB Sources'},{v:'Active',l:'Backend'}].forEach(function(s) {
+    var card = document.createElement('div'); card.className = 'stat-card';
+    var v = document.createElement('div'); v.className = 'stat-v'; v.textContent = s.v;
+    var l = document.createElement('div'); l.className = 'stat-l'; l.textContent = s.l;
+    card.appendChild(v); card.appendChild(l); el.appendChild(card);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// KOBO
+// ═══════════════════════════════════════════════════════════
+function tp(id) { var e = document.getElementById(id); e.type = e.type === 'password' ? 'text' : 'password'; }
+
+async function koboConnect() {
+  var tok = document.getElementById('kobo-tok').value.trim();
+  if (!tok) { setKSt('Enter token first','err'); return; }
+  var btn = document.getElementById('kobo-btn');
+  btn.disabled = true; btn.textContent = 'Connecting...';
   setKSt('Connecting...','');
-  try{
-    var r=await fetch(koboSrv+'/api/v2/assets/?format=json',{headers:{'Authorization':'Token '+tok}});
-    if(!r.ok) throw new Error('HTTP '+r.status+' - check your token');
-    var d=await r.json();
-    var forms=(d.results||[]).filter(function(a){return a.asset_type==='survey';});
-    if(!forms.length) throw new Error('No surveys found on this account');
-    document.getElementById('kobo-forms-card').style.display='block';
-    document.getElementById('forms-list').innerHTML=forms.map(function(f){
-      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--bg);border-radius:7px;margin-bottom:5px;border:1px solid var(--border)"><div><div style="font-size:11px;font-weight:600">'+f.name+'</div><div style="font-size:10px;color:var(--text3)">'+(f.deployment__submission_count||0)+' submissions</div></div><button class="btn btn-blue btn-sm" onclick="koboSel(\''+f.uid+'\',\''+f.name.replace(/'/g,'')+'\')">Load</button></div>';
-    }).join('');
-    setKSt('Connected! '+forms.length+' survey(s) found.','ok');
-  } catch(e){setKSt('Failed: '+e.message+'. Try Demo Data.','err');}
-  btn.disabled=false;btn.textContent='Connect';
+  try {
+    await api('kobo', {koboToken:tok, assetId:'list', server:document.getElementById('kobo-srv').value});
+    setKSt('Connected!','ok');
+    document.getElementById('kobo-forms-card').style.display = 'block';
+  } catch(e) { setKSt('Failed: ' + e.message + '. Try Demo Data.','err'); }
+  btn.disabled = false; btn.textContent = 'Connect';
 }
 
-async function koboSel(uid,name){
-  koboAsset=uid;
-  document.getElementById('kobo-sync-card').style.display='block';
-  addSyncLog('Loading: '+name+'...');
-  await koboSync();
+async function koboSync() {
+  var tok = document.getElementById('kobo-tok').value.trim();
+  if (!tok) { addSL('No token'); return; }
+  var btn = document.getElementById('ksync-btn');
+  btn.disabled = true; btn.textContent = 'Syncing...';
+  addSL('[' + nt() + '] Syncing...');
+  try {
+    var result = await api('kobo', {koboToken:tok, assetId:'', server:document.getElementById('kobo-srv').value});
+    if (result.records && result.records.length) { rows = result.records; fields = Object.keys(result.records[0] || {}); updateUI(); }
+    addSL('[' + nt() + '] ' + result.total + ' records synced');
+    document.getElementById('last-sync').textContent = 'Last: ' + nt();
+  } catch(e) { addSL('[' + nt() + '] Error: ' + e.message); }
+  btn.disabled = false; btn.textContent = 'Sync Now';
 }
 
-async function koboSync(){
-  if(!koboAsset||!koboTok){addSyncLog('No form selected');return;}
-  var btn=document.getElementById('ksync-btn');
-  btn.disabled=true;btn.textContent='Syncing...';
-  addSyncLog('['+nt()+'] Starting sync...');
-  try{
-    var r=await fetch(koboSrv+'/api/v2/assets/'+koboAsset+'/data/?format=json',{headers:{'Authorization':'Token '+koboTok}});
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    var d=await r.json();
-    var res=(d.results||[]).map(function(row){
-      var c={};
-      Object.keys(row).forEach(function(k){
-        if(!k.startsWith('_')&&!k.startsWith('meta/')){
-          c[k.indexOf('/')>=0?k.split('/').pop():k]=row[k];
-        }
-      });
-      return c;
-    });
-    if(res.length){rows=res;fields=Object.keys(res[0]||{});dataSource='kobo';updateUI();renderPreview();}
-    addSyncLog('['+nt()+'] Synced '+rows.length+' records');
-    document.getElementById('last-sync').textContent='Last: '+nt();
-    addBubble('KoboToolbox sync done! '+rows.length+' records loaded.','b');
-    go('chat');
-  } catch(e){addSyncLog('['+nt()+'] Error: '+e.message);}
-  btn.disabled=false;btn.textContent='Sync Now';
+function addSL(msg) {
+  var l = document.getElementById('sync-log'); l.style.display = 'block';
+  l.textContent = l.textContent ? l.textContent + '\n' + msg : msg;
+  l.scrollTop = l.scrollHeight;
 }
+function setKSt(msg, t) { var e = document.getElementById('kobo-st'); e.textContent = msg; e.className = t==='ok'?'ok':t==='err'?'err':''; }
+function toggleAS() { autoSync = !autoSync; document.getElementById('as-tog').classList.toggle('on', autoSync); if(autoSync){asInt=setInterval(koboSync,5*60*1000);}else{clearInterval(asInt);} }
 
-function addSyncLog(msg){var l=document.getElementById('sync-log');l.style.display='block';l.textContent+=(l.textContent?'\n':'')+msg;l.scrollTop=l.scrollHeight;}
-function setKSt(msg,t){var e=document.getElementById('kobo-st');e.textContent=msg;e.className=t==='ok'?'ok':t==='err'?'err':'info';}
-function toggleAS(){autoSync=!autoSync;document.getElementById('as-tog').classList.toggle('on',autoSync);if(autoSync){asInterval=setInterval(koboSync,5*60*1000);addSyncLog('['+nt()+'] Auto-sync ON');}else{clearInterval(asInterval);addSyncLog('['+nt()+'] Auto-sync OFF');}}
-
-function handleFile(e){
-  var file=e.target.files[0];
-  if(!file) return;
-  var reader=new FileReader();
-  reader.onload=function(ev){
-    try{
-      var wb=XLSX.read(ev.target.result,{type:'binary'});
-      var ws=wb.Sheets[wb.SheetNames[0]];
-      var data=XLSX.utils.sheet_to_json(ws);
-      if(data.length){
-        fields=Object.keys(data[0]);rows=data;dataSource='file';
-        setSt('file-st','Loaded '+data.length+' records from '+file.name,'ok');
-        markSrc('file');updateUI();renderFieldTags();renderManualForm();renderPreview();
-        addBubble('File loaded! '+data.length+' records ready.','b');
+// ═══════════════════════════════════════════════════════════
+// FILE UPLOAD
+// ═══════════════════════════════════════════════════════════
+function handleFile(e) {
+  var file = e.target.files[0]; if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      var wb = XLSX.read(ev.target.result, {type:'binary'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var data = XLSX.utils.sheet_to_json(ws);
+      if (data.length) {
+        fields = Object.keys(data[0]); rows = data;
+        updateUI(); renderFieldTags(); renderManualForm(); renderPreview();
+        addBubble('File loaded! ' + data.length + ' records ready.', 'b');
         go('chat');
       }
-    } catch(err){setSt('file-st','Could not parse file. Try .xlsx or .csv','err');}
+    } catch(err) { var st = document.getElementById('file-st'); st.textContent = 'Could not parse file'; st.className = 'err'; }
   };
   reader.readAsBinaryString(file);
 }
 
-function setSt(id,msg,t){var e=document.getElementById(id);if(e){e.textContent=msg;e.className=t==='ok'?'ok':'err';}}
-
-function updateUI(){
-  document.getElementById('data-pill').textContent=rows.length ? rows.length+' records' : 'No data';
-  document.getElementById('chat-st-t').textContent=rows.length ? rows.length+' records loaded' : 'Demo mode';
-  var rb=document.getElementById('rec-badge');
-  rb.textContent=rows.length+' records';
-  rb.style.display=rows.length?'inline':'none';
+function updateUI() {
+  document.getElementById('dp').textContent = rows.length ? rows.length + ' records' : 'No data';
+  document.getElementById('cst').textContent = rows.length ? rows.length + ' records loaded' : 'Ready';
+  var rb = document.getElementById('rec-badge'); rb.textContent = rows.length + ' records'; rb.style.display = rows.length ? 'inline' : 'none';
 }
 
-function markSrc(src){
-  var labels={kobo:'KoboToolbox',file:'File Upload',demo:'LKO West Demo'};
-  var b=document.getElementById('src-badge');
-  b.textContent=labels[src]||src;
-  b.style.display='inline';
+function renderFieldTags() {
+  var el = document.getElementById('field-tags'); el.innerHTML = '';
+  fields.forEach(function(f) {
+    var span = document.createElement('span');
+    span.style.cssText = 'display:inline-flex;font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;margin:2px;background:#2563eb12;color:var(--cyan);border:1px solid #2563eb1f';
+    span.textContent = f.replace(/_/g,' ');
+    el.appendChild(span);
+  });
 }
 
-function renderFieldTags(){
-  document.getElementById('field-tags').innerHTML=fields.map(function(f){return '<span class="tag tag-blue">'+f.replace(/_/g,' ')+'</span>';}).join('');
+function addField() {
+  var v = document.getElementById('new-field').value.trim();
+  if (v && !fields.includes(v)) { fields.push(v); renderFieldTags(); renderManualForm(); document.getElementById('new-field').value = ''; }
 }
 
-function addField(){
-  var v=document.getElementById('new-field').value.trim();
-  if(v && !fields.includes(v)){fields.push(v);renderFieldTags();renderManualForm();document.getElementById('new-field').value='';}
+function renderManualForm() {
+  var el = document.getElementById('manual-form'); el.innerHTML = '';
+  fields.forEach(function(f) {
+    var wrap = document.createElement('div');
+    var lbl = document.createElement('label'); lbl.className = 'lbl'; lbl.textContent = f.replace(/_/g,' ');
+    var inp = document.createElement('input'); inp.id = 'mf-' + f; inp.placeholder = f.replace(/_/g,' ');
+    wrap.appendChild(lbl); wrap.appendChild(inp); el.appendChild(wrap);
+  });
 }
 
-function renderManualForm(){
-  document.getElementById('manual-form').innerHTML=fields.map(function(f){
-    return '<div><div class="lbl">'+f.replace(/_/g,' ')+'</div><input id="mf-'+f+'" placeholder="'+f.replace(/_/g,' ')+'"/></div>';
-  }).join('');
-}
-
-function addManualRow(){
-  var row={};
-  fields.forEach(function(f){var e=document.getElementById('mf-'+f);row[f]=e?e.value:'';});
+function addManualRow() {
+  var row = {};
+  fields.forEach(function(f) { var e = document.getElementById('mf-' + f); row[f] = e ? e.value : ''; });
   rows.push(row);
-  fields.forEach(function(f){var e=document.getElementById('mf-'+f);if(e)e.value='';});
-  setSt('manual-st','Added. Total: '+rows.length,'ok');
-  updateUI();renderPreview();
+  fields.forEach(function(f) { var e = document.getElementById('mf-' + f); if(e) e.value = ''; });
+  var st = document.getElementById('manual-st'); st.textContent = 'Added. Total: ' + rows.length; st.className = 'ok';
+  updateUI(); renderPreview();
 }
 
-function renderPreview(){
-  if(!rows.length) return;
-  document.getElementById('preview-card').style.display='block';
-  document.getElementById('preview-title').textContent='Preview ('+rows.length+' records)';
-  var cols=Object.keys(rows[0]);
-  document.getElementById('preview-tbl').innerHTML=
-    '<thead><tr>'+cols.map(function(c){return '<th>'+c+'</th>';}).join('')+'</tr></thead>'
-    +'<tbody>'+rows.slice(0,7).map(function(r){return '<tr>'+cols.map(function(c){return '<td>'+(r[c]||'')+'</td>';}).join('')+'</tr>';}).join('')+'</tbody>';
-  document.getElementById('preview-more').textContent=rows.length>7?'+'+(rows.length-7)+' more rows':'';
+function renderPreview() {
+  if (!rows.length) return;
+  document.getElementById('preview-card').style.display = 'block';
+  document.getElementById('preview-title').textContent = 'Preview (' + rows.length + ' records)';
+  var cols = Object.keys(rows[0]);
+  var thead = '<thead><tr>' + cols.map(function(c){return '<th>' + c + '</th>';}).join('') + '</tr></thead>';
+  var tbody = '<tbody>' + rows.slice(0,7).map(function(r){return '<tr>' + cols.map(function(c){return '<td>' + (r[c]||'') + '</td>';}).join('') + '</tr>';}).join('') + '</tbody>';
+  document.getElementById('preview-tbl').innerHTML = thead + tbody;
+  document.getElementById('preview-more').textContent = rows.length > 7 ? '+' + (rows.length-7) + ' more rows' : '';
 }
 
-function refreshVis(){
-  if(!rows.length){
-    document.getElementById('stat-row').innerHTML='<div class="stat-card"><div class="stat-v">0</div><div class="stat-l">Load data first</div></div>';
+// ═══════════════════════════════════════════════════════════
+// VISUALISE
+// ═══════════════════════════════════════════════════════════
+function refreshVis() {
+  if (!rows.length) {
+    document.getElementById('stat-row').innerHTML = '<div class="stat-card"><div class="stat-v">0</div><div class="stat-l">Load data first</div></div>';
     return;
   }
-  var wards=[];
-  rows.forEach(function(r){var w=r.Ward||r.ward||'Unknown';if(wards.indexOf(w)<0)wards.push(w);});
-  document.getElementById('stat-row').innerHTML=[{v:rows.length,l:'Records'},{v:fields.length,l:'Fields'},{v:wards.length,l:'Wards'}].map(function(s){
-    return '<div class="stat-card"><div class="stat-v">'+s.v+'</div><div class="stat-l">'+s.l+'</div></div>';
-  }).join('');
-  document.getElementById('chart-field').innerHTML=fields.map(function(f){return '<option value="'+f+'">'+f.replace(/_/g,' ')+'</option>';}).join('');
+  var wards = [];
+  rows.forEach(function(r) { var w = r.Ward || 'Unknown'; if (wards.indexOf(w) < 0) wards.push(w); });
+  var el = document.getElementById('stat-row'); el.innerHTML = '';
+  [{v:rows.length,l:'Records'},{v:fields.length,l:'Fields'},{v:wards.length,l:'Wards'}].forEach(function(s) {
+    var card = document.createElement('div'); card.className = 'stat-card';
+    var v = document.createElement('div'); v.className = 'stat-v'; v.textContent = s.v;
+    var l = document.createElement('div'); l.className = 'stat-l'; l.textContent = s.l;
+    card.appendChild(v); card.appendChild(l); el.appendChild(card);
+  });
+  var sel = document.getElementById('chart-field'); sel.innerHTML = '';
+  fields.forEach(function(f) { var opt = document.createElement('option'); opt.value = f; opt.textContent = f.replace(/_/g,' '); sel.appendChild(opt); });
   renderChart();
 }
 
-function countBy(key){
-  var m={};
-  rows.forEach(function(r){var v=String(r[key]||'Unknown');m[v]=(m[v]||0)+1;});
+function countBy(key) {
+  var m = {};
+  rows.forEach(function(r) { var v = String(r[key]||'Unknown'); m[v] = (m[v]||0) + 1; });
   return Object.entries(m).map(function(e){return {name:e[0],value:e[1]};}).sort(function(a,b){return b.value-a.value;});
 }
 
-function renderChart(){
-  if(!rows.length) return;
-  var field=document.getElementById('chart-field').value;
-  var type=document.getElementById('chart-type').value;
-  var data=countBy(field);
-  if(chartInst){chartInst.destroy();chartInst=null;}
-  chartInst=new Chart(document.getElementById('main-chart').getContext('2d'),{
-    type:type,
-    data:{
-      labels:data.map(function(d){return d.name;}),
-      datasets:[{data:data.map(function(d){return d.value;}),backgroundColor:COLS.map(function(c){return c+'cc';}),borderColor:COLS,borderWidth:1,borderRadius:type==='bar'?4:0}]
+function renderChart() {
+  if (!rows.length) return;
+  var field = document.getElementById('chart-field').value;
+  var type = document.getElementById('chart-type').value;
+  var data = countBy(field);
+  if (chartInst) { chartInst.destroy(); chartInst = null; }
+  chartInst = new Chart(document.getElementById('main-chart').getContext('2d'), {
+    type: type,
+    data: {
+      labels: data.map(function(d){return d.name;}),
+      datasets: [{data:data.map(function(d){return d.value;}), backgroundColor:COLS.map(function(c){return c+'cc';}), borderColor:COLS, borderWidth:1, borderRadius:type==='bar'?4:0}]
     },
-    options:{responsive:true,
-      plugins:{
-        legend:{labels:{color:'#94a3b8',font:{size:10}}},
-        tooltip:{callbacks:{label:function(ctx){return ctx.raw+' ('+(ctx.raw/rows.length*100).toFixed(1)+'%)';}}}
-      },
-      scales:type==='bar'?{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e3a5f25'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e3a5f25'}}}:{}
-    }
+    options:{responsive:true,plugins:{legend:{labels:{color:'#94a3b8',font:{size:10}}},tooltip:{callbacks:{label:function(ctx){return ctx.raw+' ('+(ctx.raw/rows.length*100).toFixed(1)+'%)';}}}},scales:type==='bar'?{x:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e3a5f25'}},y:{ticks:{color:'#64748b',font:{size:10}},grid:{color:'#1e3a5f25'}}}:{}}
   });
-  document.getElementById('bd-title').textContent='Breakdown: '+field.replace(/_/g,' ');
-  document.getElementById('bd-list').innerHTML=data.slice(0,12).map(function(d,i){
-    return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;margin-bottom:2px"><span style="font-size:11px;color:var(--text2)">'+d.name+'</span><span style="font-size:11px;font-weight:700;color:'+COLS[i%COLS.length]+'">'+d.value+' ('+(d.value/rows.length*100).toFixed(1)+'%)</span></div><div class="prog-wrap"><div class="prog-bar" style="width:'+(d.value/rows.length*100)+'%;background:'+COLS[i%COLS.length]+'"></div></div></div>';
-  }).join('');
+  document.getElementById('bd-title').textContent = 'Breakdown: ' + field.replace(/_/g,' ');
+  var el = document.getElementById('bd-list'); el.innerHTML = '';
+  data.slice(0,12).forEach(function(d, i) {
+    var wrap = document.createElement('div'); wrap.style.marginBottom = '8px';
+    var top = document.createElement('div'); top.style.cssText = 'display:flex;justify-content:space-between;margin-bottom:2px';
+    var nm = document.createElement('span'); nm.style.cssText = 'font-size:11px;color:var(--text2)'; nm.textContent = d.name;
+    var vl = document.createElement('span'); vl.style.cssText = 'font-size:11px;font-weight:700;color:' + COLS[i%COLS.length]; vl.textContent = d.value + ' (' + (d.value/rows.length*100).toFixed(1) + '%)';
+    top.appendChild(nm); top.appendChild(vl);
+    var pw = document.createElement('div'); pw.className = 'pw';
+    var pb = document.createElement('div'); pb.className = 'pb'; pb.style.cssText = 'width:' + (d.value/rows.length*100) + '%;background:' + COLS[i%COLS.length];
+    pw.appendChild(pb); wrap.appendChild(top); wrap.appendChild(pw); el.appendChild(wrap);
+  });
 }
 
-window.onload=function(){
-  loadKey();
-  renderFieldTags();
-  renderManualForm();
-  loadDemo();
-};
-
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+renderFieldTags();
+renderManualForm();
 </script>
 </body>
 </html>
