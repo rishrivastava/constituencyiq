@@ -11,8 +11,16 @@ const db = admin.firestore();
 
 async function verifyToken(req) {
   const authHeader = req.headers.authorization;
+  // Allow demo/guest mode — no token required
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    throw new Error('No token provided');
+    return { uid: 'demo', email: 'demo@ciq', role: 'candidate', candidateId: 'demo', ward: null };
+  }
+  const token = authHeader.split('Bearer ')[1];
+  // Handle demo token from frontend
+  if (token === 'demo-mode') {
+    return { uid: 'demo', email: 'demo@ciq', role: 'candidate', candidateId: 'demo', ward: null };
+  }
+  const decoded = await admin.auth().verifyIdToken(token);
   }
   const token = authHeader.split('Bearer ')[1];
   const decoded = await admin.auth().verifyIdToken(token);
@@ -54,6 +62,7 @@ function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
 module.exports = { admin, db, verifyToken, callClaude, setCors };
