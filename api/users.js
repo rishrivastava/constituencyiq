@@ -1,12 +1,19 @@
 const { verifyToken, db, admin, setCors } = require('./_helpers');
 
 module.exports = async (req, res) => {
-  setCors(res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  setCors(res); // ALWAYS first
+
+  if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const user = await verifyToken(req);
+
+    // Demo mode simulation
+    if (user.isDemo) {
+      return res.json({ success: true, uid: 'demo_uid', message: 'Demo mode: user creation simulated' });
+    }
+
     if (user.role !== 'admin') {
       return res.status(403).json({ error: 'Only admin can create users' });
     }
@@ -16,8 +23,7 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: 'Email, password and role required' });
     }
 
-    var userRecord = await admin.auth().createUser({ email: email, password: password });
-
+    const userRecord = await admin.auth().createUser({ email: email, password: password });
     await db.collection('users').doc(userRecord.uid).set({
       name: name || email,
       email: email,
@@ -29,11 +35,7 @@ module.exports = async (req, res) => {
       createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    res.json({
-      success: true,
-      uid: userRecord.uid,
-      message: 'User ' + email + ' created with role: ' + role
-    });
+    res.json({ success: true, uid: userRecord.uid, message: 'User ' + email + ' created with role: ' + role });
 
   } catch (err) {
     console.error('Users error:', err.message);
