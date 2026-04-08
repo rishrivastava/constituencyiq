@@ -1,18 +1,28 @@
 const { verifyToken, callClaude, db, admin, setCors } = require('./_helpers');
 
 module.exports = async (req, res) => {
+  // ALWAYS set CORS first — before anything else
   setCors(res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // Handle preflight — must come AFTER setCors
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
     const user = await verifyToken(req);
     const { message, history, constituencyData, knowledgeBase } = req.body;
+
     if (!message) return res.status(400).json({ error: 'Message required' });
 
     const kb = knowledgeBase && knowledgeBase.length
       ? '\n\nKNOWLEDGE BASE:\n' + knowledgeBase.map(function(k) {
-          return '[' + k.label + ']: ' + k.summary;
+          return '[' + (k.label || k.name) + ']: ' + (k.summary || '');
         }).join('\n\n')
       : '';
 
@@ -32,24 +42,26 @@ module.exports = async (req, res) => {
 
     const reply = await callClaude(system, message, history || []);
 
-    if (user.candidateId) {
-      await db.collection('chats').doc(user.candidateId)
-        .collection('messages').add({
-          userMessage: message,
-          aiReply: reply,
-          uid: user.uid,
-          role: user.role,
-          timestamp: admin.firestore.FieldValue.serverTimestamp()
-        });
+    if (!user.isDemo && user.candidateId) {
+      try {
+        await db.collection('chats').doc(user.candidateId)
+          .collection('messages').add({
+            userMessage: message,
+            aiReply: reply,
+            uid: user.uid,
+            role: user.role,
+            timestamp: admin.firestore.FieldValue.serverTimestamp()
+          });
+      } catch (e) {
+        console.log('Firestore save failed:', e.message);
+      }
     }
 
-    res.json({ reply: reply, user: { role: user.role } });
+    res.json({ reply: reply, user: { role: user.role, isDemo: user.isDemo } });
 
   } catch (err) {
     console.error('Chat error:', err.message);
-    if (err.message.includes('token') || err.message.includes('Token')) {
-      return res.status(401).json({ error: 'Please log in again' });
-    }
-    res.status(500).json({ error: err.message });
+    // CORS headers already set above — safe to return error now
+    res.status(500).json({ error: 'Chat failed: ' + err.message });
   }
 };
