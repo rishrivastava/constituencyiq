@@ -1,20 +1,28 @@
 const { verifyToken, db, admin, setCors } = require('./_helpers');
 
 module.exports = async (req, res) => {
-  setCors(res);
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  setCors(res); // ALWAYS first
+
+  if (req.method === 'OPTIONS') { res.status(200).end(); return; }
 
   try {
     const user = await verifyToken(req);
+
+    // Demo mode — simulate success without hitting Firestore
+    if (user.isDemo) {
+      if (req.method === 'POST') return res.json({ success: true, saved: (req.body.voters || []).length });
+      if (req.method === 'GET') return res.json({ voters: [], total: 0, message: 'Demo mode' });
+    }
+
     if (!user.candidateId) return res.status(400).json({ error: 'No candidate assigned' });
 
     if (req.method === 'POST') {
       const { voters } = req.body;
       if (!voters || !voters.length) return res.status(400).json({ error: 'No voter data' });
 
-      var batch = db.batch();
-      voters.forEach(function(voter) {
-        var ref = db.collection('voters')
+      const batch = db.batch();
+      voters.forEach(voter => {
+        const ref = db.collection('voters')
           .doc(user.candidateId)
           .collection('records')
           .doc();
@@ -29,15 +37,15 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'GET') {
-      var snapshot = await db.collection('voters')
+      const snapshot = await db.collection('voters')
         .doc(user.candidateId)
         .collection('records')
         .limit(500)
         .get();
 
-      var voters = [];
-      snapshot.forEach(function(doc) {
-        var data = doc.data();
+      const voters = [];
+      snapshot.forEach(doc => {
+        const data = doc.data();
         if (user.role === 'field_worker') {
           if (data.Ward === user.ward || data.ward === user.ward) {
             voters.push({ Ward: data.Ward, Area: data.Area, Problem: data.Problem });
@@ -46,7 +54,6 @@ module.exports = async (req, res) => {
           voters.push(Object.assign({ id: doc.id }, data));
         }
       });
-
       return res.json({ voters: voters, total: voters.length });
     }
 
@@ -54,6 +61,6 @@ module.exports = async (req, res) => {
 
   } catch (err) {
     console.error('Voters error:', err.message);
-    res.status(err.message.includes('token') ? 401 : 500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
