@@ -59,7 +59,7 @@ async function callClaude(system, message, history = [], maxTokens = 1000) {
   const response = await axios.post(
     'https://api.anthropic.com/v1/messages',
     {
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: maxTokens,
       system: system,
       messages: [...(history || []), { role: 'user', content: message }]
